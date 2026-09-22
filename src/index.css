@@ -10,59 +10,133 @@
     --color-bg-dark: #120e17;
     --color-card-dark: #1e1727;
     --color-card-border: #31253e;
+
+    /* 🍬 Femme design tokens (girls edition — A+B+C+D blend) */
+    --femme-bg: #fff8f6;
+    --femme-ink: #4a2233;
+    --femme-muted: #a3768c;
+    --femme-rose: #d6517a;
+    --femme-rose-deep: #b23d63;
+    --femme-rose-soft: #f28cb0;
+    --femme-peach: #ffd9c8;
+    --femme-cream: #fff2ec;
+    --femme-plum: #6e2b48;
+    --femme-gray: #f6edf1;
+    --femme-line: rgba(214, 81, 122, 0.16 opera);
+    --femme-shadow-soft: 0 22px 50px -20px rgba(178, 61, 99, 0.28);
+    --femme-shadow-glow: 0 0 0 1px rgba(242, 140, 176, 0.35), 0 18px 46px -16px rgba(214, 81, 122, 0.5);
+
+    --grad-femme: linear-gradient(135deg, #f28cb0 0%, #d6517a 52%, #b23d63 100%);
+    --grad-femme-soft: linear-gradient(135deg, #fff2ec 0%, #ffe0e9 62%, #ffd9e6 100%);
+    --grad-femme-warm: linear-gradient(135deg, #ffd9c8 0%, #ffc7d8 100%);
+    --grad-femme-glass: linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,255,255,.5));
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     margin: 0;
     padding: 0;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
+
+  /* Apple-style smooth, rounded scrollbars */
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  ::-webkit-scrollbar-thumb { background: rgba(214, 81, 122, 0.18); border-radius: 9999px; }
 }
 
-/* Custom scrollbar for mobile feel */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ═══════════ FEMCARE "WOW" DESIGN SYSTEM ═══════════
+   A · Glassmorphism + subtle gradients
+   B · Warm & friendly (girls) — soft rose, blush, rounded + friendly
+   C · Apple-like minimal — whitespace, large type, crisp radii
+   D · Interactive wellness — motion, rings, cards, conversational love
+   ─────────────────────────────────────────────────────── */
+
+/* ── A · Glass panels ─────────────────────────────────────────── */
+.femme-glass {
+  background: var(--grad-femme-glass);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: var(--femme-shadow-soft);
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+.femme-glass-deep {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 20px 44px -22px rgba(178, 61, 99, 0.35);
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(181, 73, 122, 0.3);
+
+/* ── A · Gradient surfaces ────────────────────────────────────── */
+.femme-grad { background: var(--grad-femme); }
+.femme-grad-soft { background: var(--grad-femme-soft); }
+.femme-grad-warm { background: var(--grad-femme-warm); }
+.femme-text-grad {
+  background: var(--grad-femme);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.femme-ring-glow { box-shadow: var(--femme-shadow-glow); }
+
+/* ── B · Warm friendly helpers ────────────────────────────────── */
+.femme-card {
+  background: var(--femme-cream);
+  border: 1px solid var(--femme-line);
+  border-radius: 26px;
+  padding: 20px;
+  box-shadow: 0 14px 34px -18px rgba(178, 61, 99, 0.22);
+}
+.femme-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--femme-rose);
+  background: rgba(242, 140, 176, 0.14);
+  border: 1px solid rgba(214, 81, 122, 0.22);
   border-radius: 9999px;
+  padding: 5px 12px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(181, 73, 122, 0.5);
-}
+.femme-divider { height: 1px; background: var(--femme-line); }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(30, 23, 39, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(244, 166, 185, 0.12);
-}
+/* ── C · Apple-minimal type scale ─────────────────────────────── */
+.femme-display { font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; }
+.femme-title { font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.femme-caption { font-size: 12px; color: var(--femme-muted); letter-spacing: 0.01em; }
 
-.glass-panel-light {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(181, 73, 122, 0.15);
+/* ── D · Interactive wellness motion ──────────────────────────── */
+@keyframes femme-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1.5deg); }
 }
-
-/* Glowing pulse for active ovulation or SOS button */
-@keyframes soft-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(181, 73, 122, 0.4);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 10px rgba(181, 73, 122, 0);
-  }
+@keyframes femme-bloom {
+  0% { opacity: 0; transform: scale(0.86) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
+@keyframes femme-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes femme-ring {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(214, 81, 122, 0.45); }
+  50% { transform: scale(1.035); box-shadow: 0 0 0 12px rgba(214, 81, 122, 0); }
+}
+.animate-femme-float { animation: femme-float 4s ease-in-out infinite; }
+.animate-femme-bloom { animation: femme-bloom 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-femme-ring { animation: femme-ring 2.4s ease-in-out infinite; }
 
-.animate-soft-pulse {
-  animation: soft-pulse 2.5s infinite ease-in-out;
+/* Assisted reveal (used by step-based content) */
+.femme-step { opacity: 0; transform: translateY(14px); }
+.femme-step.in { opacity: 1; transform: none; transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
