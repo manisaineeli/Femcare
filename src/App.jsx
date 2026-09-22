@@ -5,6 +5,8 @@ import BottomNav from './components/BottomNav';
 import PrivacyShieldModal from './components/PrivacyShieldModal';
 import SymptomLoggerModal from './components/SymptomLoggerModal';
 import SOSModal from './components/SOSModal';
+import SosLiveOverlay from './components/SosLiveOverlay';
+import VolumeSosButton from './components/VolumeSosButton';
 
 // Pages
 import Home from './pages/Home';
@@ -20,8 +22,7 @@ import Onboarding from './pages/Onboarding';
 
 // Icons for quick sub-drawer
 import { 
-  Home as HomeIcon, Calendar, Utensils, Dumbbell, Bot, ShieldAlert, 
-  ShoppingBag, BookOpen, PenLine, ShieldCheck, HeartHandshake 
+  Dumbbell, ShoppingBag, BookOpen, PenLine 
 } from 'lucide-react';
 
 function AppContent() {
@@ -30,6 +31,8 @@ function AppContent() {
   const [showPrivacyShield, setShowPrivacyShield] = useState(false);
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [showSOSModal, setShowSOSModal] = useState(false);
+  // Live SOS started by the Volume-Up gesture (double-press / 2-second hold)
+  const [liveSos, setLiveSos] = useState({ open: false, source: '' });
 
   // First launch → collect user details (name & age) before entering the app
   if (!state.onboardingComplete) {
@@ -82,15 +85,10 @@ function AppContent() {
         <Header onOpenPrivacyShield={() => setShowPrivacyShield(true)} />
 
         {/* Top Horizontal Quick Launcher for Secondary Tabs */}
-        <div className="px-3 pt-2 pb-1 overflow-x-auto flex gap-1.5 no-scrollbar border-b border-[#2d2238]/40 bg-[#16101c]/90 backdrop-blur-sm">
+        <div className="flex gap-1.5 py-2 border-b border-[#2d2238]/40 bg-[#16101c]/90 backdrop-blur-sm">
           {[
-            { id: 'home', label: 'Home', icon: HomeIcon },
-            { id: 'tracker', label: 'Cycle', icon: Calendar },
-            { id: 'diet', label: 'Diet', icon: Utensils },
             { id: 'weight', label: 'Fitness', icon: Dumbbell },
-            { id: 'ai', label: 'AI Triage', icon: Bot },
-            { id: 'safety', label: 'Safety SOS', icon: ShieldAlert },
-            { id: 'shop', label: 'Period Shop', icon: ShoppingBag },
+            { id: 'shop', label: 'Products', icon: ShoppingBag },
             { id: 'facts', label: '365 Facts', icon: BookOpen },
             { id: 'journal', label: 'Journal', icon: PenLine }
           ].map((tab) => {
@@ -100,13 +98,13 @@ function AppContent() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap px-2.5 py-1 rounded-full text-[11px] font-medium flex items-center gap-1.5 transition-all shrink-0 ${
+                className={`flex-1 whitespace-nowrap px-2.5 py-2 rounded-full text-[11px] font-medium flex items-center justify-center gap-1.5 transition-all ${
                   isCurrent
                     ? 'bg-[#b5497a] text-white shadow-sm font-semibold'
                     : 'bg-[#1f1627] text-zinc-400 hover:text-zinc-200 border border-[#31253e]'
                 }`}
               >
-                <Icon className="w-3 h-3" />
+                <Icon className="w-3 h-3 shrink-0" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -138,6 +136,16 @@ function AppContent() {
         <SOSModal
           isOpen={showSOSModal}
           onClose={() => setShowSOSModal(false)}
+        />
+
+        {/* Volume-Up gesture Live SOS: double-press or hold 2 seconds */}
+        <VolumeSosButton
+          onTrigger={(source) => setLiveSos({ open: true, source })}
+        />
+        <SosLiveOverlay
+          isOpen={liveSos.open}
+          source={liveSos.source}
+          onClose={() => setLiveSos({ open: false, source: '' })}
         />
       </div>
     </div>

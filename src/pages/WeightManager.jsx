@@ -3,10 +3,62 @@ import { useAppState } from '../context/AppStateContext';
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid 
 } from 'recharts';
-import { 
-  Dumbbell, Scale, TrendingUp, Info, Sparkles, Check, Flame, Activity, 
-  ArrowRight, ShieldCheck 
+import {
+  Dumbbell, Scale, TrendingUp, Info, Sparkles, Check, Flame, Activity,
+  ArrowRight, ShieldCheck, Timer, HeartPulse
 } from 'lucide-react';
+
+// Basic pain-relief exercises (animated GIF demos, bundled locally in /public/exercises)
+const painReliefExercises = [
+  {
+    id: 'pelvic-tilt',
+    gif: './exercises/pelvic-tilt.gif',
+    name: 'Pelvic Tilts',
+    relieves: 'Lower-back cramps & stiffness',
+    dose: '10 slow reps',
+    steps: 'Lie on your back, knees bent. Gently flatten your lower back into the floor, hold 3 sec, release.'
+  },
+  {
+    id: 'pelvic-tilt-bridge',
+    gif: './exercises/pelvic-tilt-bridge.gif',
+    name: 'Tilt into Bridge',
+    relieves: 'Back pain & tight hips',
+    dose: '10 reps',
+    steps: 'Tilt your pelvis, then lift your hips toward the ceiling. Squeeze gently at the top, lower slowly.'
+  },
+  {
+    id: 'butterfly-pose',
+    gif: './exercises/butterfly-pose.gif',
+    name: 'Butterfly Pose',
+    relieves: 'Pelvic tension & period cramps',
+    dose: '2 minutes',
+    steps: 'Sit tall, soles of feet together. Let your knees fall open and flutter them gently.'
+  },
+  {
+    id: 'piriformis-stretch',
+    gif: './exercises/piriformis-stretch.gif',
+    name: 'Seated Piriformis Stretch',
+    relieves: 'Hip & glute pain',
+    dose: '30 sec / side',
+    steps: 'Seated, cross one ankle over the opposite knee and lean forward with a straight spine.'
+  },
+  {
+    id: 'lower-back-stretch',
+    gif: './exercises/lower-back-stretch.gif',
+    name: 'Seated Lower-Back Stretch',
+    relieves: 'Aching lower back',
+    dose: '45 seconds',
+    steps: 'Sit on the floor, legs extended. Reach toward your toes and breathe slowly into the stretch.'
+  },
+  {
+    id: 'iron-cross-stretch',
+    gif: './exercises/iron-cross-stretch.gif',
+    name: 'Iron Cross Twist',
+    relieves: 'Stiff spine & waist pain',
+    dose: '10 / side',
+    steps: 'Lie flat, arms out. Drop both knees to one side, then the other, keeping shoulders grounded.'
+  }
+];
 
 export default function WeightManager() {
   const { state, cycleStatus, t, logWeight, updateUserProfile } = useAppState();
@@ -82,6 +134,51 @@ export default function WeightManager() {
         <p className="text-xs text-zinc-400">
           {t('weight.subtitle')}
         </p>
+      </div>
+
+      {/* Pain-Relief Exercises (animated GIF demos) */}
+      <div className="rounded-2xl p-4 bg-[#1e1727] border border-[#31253e] shadow-md space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <HeartPulse className="w-4 h-4 text-rose-400" />
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider font-['Outfit']">
+              Pain-Relief Exercises
+            </h4>
+          </div>
+          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-rose-900/40 text-rose-300 border border-rose-500/30">
+            Basic · No equipment
+          </span>
+        </div>
+        <p className="text-[11px] text-zinc-400 -mt-1">
+          Gentle moves that ease cramps, back pain and hip tension. Just follow the animation.
+        </p>
+
+        <div className="grid grid-cols-2 gap-2.5">
+          {painReliefExercises.map((ex) => (
+            <div
+              key={ex.id}
+              className="rounded-xl bg-[#251d30] border border-[#372646] overflow-hidden"
+            >
+              <div className="h-32 bg-[#16101c] flex items-center justify-center overflow-hidden border-b border-[#372646]">
+                <img
+                  src={ex.gif}
+                  alt={ex.name}
+                  loading="lazy"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="p-2.5">
+                <div className="text-[11px] font-bold text-white leading-tight">{ex.name}</div>
+                <div className="text-[10px] text-[#f4a6b9] mt-0.5 leading-snug">{ex.relieves}</div>
+                <p className="text-[10px] text-zinc-400 mt-1 leading-snug">{ex.steps}</p>
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] font-semibold text-zinc-300">
+                  <Timer className="w-3 h-3 text-[#f4a6b9]" />
+                  {ex.dose}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Cycle-Aware Water Retention Callout */}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppState } from '../context/AppStateContext';
 import { 
   ShieldAlert, PhoneCall, MessageSquare, Plus, Trash2, KeyRound, 
-  VolumeX, AlertTriangle, Check, ShieldCheck, Heart, UserPlus, Clock 
+  VolumeX, Volume2, AlertTriangle, Check, ShieldCheck, Heart, UserPlus, Clock 
 } from 'lucide-react';
 
 export default function Safety({ onOpenSOS }) {
@@ -76,6 +76,14 @@ export default function Safety({ onOpenSOS }) {
 
         <p className="text-[11px] text-zinc-400">
           {t('safety.sosSub')}
+        </p>
+
+        <p className="text-[10px] text-rose-300/90 flex items-start gap-1.5">
+          <Volume2 className="w-3.5 h-3.5 mt-px shrink-0" />
+          <span>
+            Hands-free Live SOS: <b>double-press the VOL+ button</b>, or <b>hold it for 2 seconds</b> - it shares your
+            live location with your trusted circle and dials emergency 112. The one-tap button above works exactly as before.
+          </span>
         </p>
       </div>
 
