@@ -37,6 +37,13 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Include pitch deck in artifact
+        run: |
+          mkdir -p dist/ppt
+          cp -r ppt/assets dist/ppt/
+          cp ppt/femcare-ai-pitch.html ppt/femcare-ai-pitch.pptx ppt/README.md dist/ppt/
+          ls -R dist | tail -n 20
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
