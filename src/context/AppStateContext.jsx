@@ -181,6 +181,10 @@ export function AppStateProvider({ children }) {
     setState(getDefaultState());
   };
 
+  const completeOnboarding = () => {
+    setState((prev) => ({ ...prev, onboardingComplete: true }));
+  };
+
   const value = {
     state,
     t,
@@ -199,7 +203,8 @@ export function AppStateProvider({ children }) {
     addChatMessage,
     clearChatHistory,
     addJournalEntry,
-    resetAppToDefaults
+    resetAppToDefaults,
+    completeOnboarding
   };
 
   return (

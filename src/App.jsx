@@ -16,6 +16,7 @@ import Safety from './pages/Safety';
 import Shopping from './pages/Shopping';
 import FactsAndQuiz from './pages/FactsAndQuiz';
 import Journal from './pages/Journal';
+import Onboarding from './pages/Onboarding';
 
 // Icons for quick sub-drawer
 import { 
@@ -29,6 +30,17 @@ function AppContent() {
   const [showPrivacyShield, setShowPrivacyShield] = useState(false);
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
   const [showSOSModal, setShowSOSModal] = useState(false);
+
+  // First launch → collect user details (name & age) before entering the app
+  if (!state.onboardingComplete) {
+    return (
+      <div className={`min-h-screen transition-colors duration-300 ${state.darkMode ? 'bg-[#0f0b14] text-[#f5eff7]' : 'bg-[#fff8f5] text-[#2c1d28]'}`}>
+        <div className="mx-auto w-full max-w-[480px] min-h-screen relative flex flex-col bg-[#120e17] dark:bg-[#120e17] shadow-2xl border-x border-[#2d2238]/60">
+          <Onboarding />
+        </div>
+      </div>
+    );
+  }
 
   // Render current tab page
   const renderActivePage = () => {

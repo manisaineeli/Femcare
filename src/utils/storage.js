@@ -55,6 +55,7 @@ export function getDefaultState() {
     language: "en", // "en", "hi", "ta", "te"
     darkMode: true,
     partnerMode: false,
+    onboardingComplete: false,
     userProfile: {
       name: "Aanya",
       age: 24,
