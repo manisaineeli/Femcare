@@ -23,7 +23,7 @@ export default function Header({ onOpenPrivacyShield }) {
           <div>
             <div className="flex items-center gap-1.5">
               <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-[#f4a6b9] via-[#f7d6e0] to-[#b5497a] bg-clip-text text-transparent font-['Outfit']">
-                FemCare AI
+                FemCare
               </h1>
               <span className="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded-full bg-[#b5497a]/20 text-[#f4a6b9] border border-[#b5497a]/40">
                 PWA

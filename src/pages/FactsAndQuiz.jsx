@@ -36,7 +36,7 @@ export default function FactsAndQuiz() {
   });
 
   const handleShareFact = (fact) => {
-    const text = `💡 FemCare AI Health Fact:\n"${fact.title}"\n${fact.fact}\nSource: ${fact.source}`;
+    const text = `💡 FemCare Health Fact:\n"${fact.title}"\n${fact.fact}\nSource: ${fact.source}`;
     if (navigator.share) {
       navigator.share({ title: fact.title, text }).catch(() => {});
     } else {

@@ -21,7 +21,7 @@ export default function Home({ onOpenSymptomLogger, onOpenSOS, setActiveTab }) {
   const phaseDetails = t(`phases.${cycleStatus.phaseKey}`) || {};
 
   const handleShareFact = () => {
-    const text = `💡 Daily Period Health Fact from FemCare AI:\n"${todayFact.title}"\n${todayFact.fact}\nSource: ${todayFact.source}`;
+    const text = `💡 Daily Period Health Fact from FemCare:\n"${todayFact.title}"\n${todayFact.fact}\nSource: ${todayFact.source}`;
     if (navigator.share) {
       navigator.share({ title: todayFact.title, text }).catch(() => {});
     } else {

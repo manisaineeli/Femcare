@@ -3,7 +3,7 @@
 
 export const translations = {
   en: {
-    appName: "FemCare AI",
+    appName: "FemCare",
     tagline: "Your private menstrual health companion, powered by AI",
     privacyBanner: "100% Offline-first. Your health data never leaves this device.",
     privacyShield: "Privacy Shield Active",
@@ -179,7 +179,7 @@ export const translations = {
     }
   },
   hi: {
-    appName: "फेमकेयर AI (FemCare AI)",
+    appName: "फेमकेयर (FemCare)",
     tagline: "आपकी निजी मासिक धर्म साथी, AI द्वारा संचालित",
     privacyBanner: "100% ऑफ़लाइन। आपका स्वास्थ्य डेटा कभी भी आपके फोन से बाहर नहीं जाता।",
     privacyShield: "प्राइवेसी शील्ड सक्रिय",
@@ -355,7 +355,7 @@ export const translations = {
     }
   },
   ta: {
-    appName: "ஃபெம்கேர் AI (FemCare AI)",
+    appName: "ஃபெம்கேர் (FemCare)",
     tagline: "உங்கள் தனிப்பட்ட மாதவிடாய் சுகாதார துணை, AI மூலம் இயங்குகிறது",
     privacyBanner: "100% ஆஃப்லைன். உங்கள் உடல்நலத் தரவு உங்கள் சாதனத்தை விட்டு வெளியேறாது.",
     privacyShield: "தனியுரிமை கவசம் இயக்கத்தில் உள்ளது",
@@ -531,7 +531,7 @@ export const translations = {
     }
   },
   te: {
-    appName: "ఫెమ్‌కేర్ AI (FemCare AI)",
+    appName: "ఫెమ్‌కేర్ (FemCare)",
     tagline: "మీ వ్యక్తిగత ఋతు సంరక్షణ సహచరి, AI ఆధారితం",
     privacyBanner: "100% ఆఫ్‌లైన్. మీ ఆరోగ్య డేటా మీ పరికరాన్ని ఎప్పటికీ దాటి వెళ్ళదు.",
     privacyShield: "గోప్యతా కవచం సక్రియం",

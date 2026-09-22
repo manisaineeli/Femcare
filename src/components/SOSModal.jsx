@@ -14,7 +14,7 @@ export default function SOSModal({ isOpen, onClose }) {
   const sosMsg = state.sosSettings?.customMessage || "EMERGENCY: I need immediate help. Please check on me!";
 
   const handleWhatsAppBroadcast = () => {
-    const encoded = encodeURIComponent(`${sosMsg} (Sent via FemCare AI Emergency SOS)`);
+    const encoded = encodeURIComponent(`${sosMsg} (Sent via FemCare Emergency SOS)`);
     // WhatsApp URL with message
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
   };

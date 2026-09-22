@@ -51,7 +51,7 @@ export default function PrivacyShieldModal({ isOpen, onClose }) {
             <div>
               <div className="text-xs font-semibold text-white">Zero Outgoing Network Traffic</div>
               <p className="text-[11px] text-zinc-400 mt-0.5">
-                FemCare AI never transmits cycle dates, symptoms, or chat logs to any remote server or cloud telemetry service.
+                FemCare never transmits cycle dates, symptoms, or chat logs to any remote server or cloud telemetry service.
               </p>
             </div>
           </div>

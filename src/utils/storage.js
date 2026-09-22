@@ -93,7 +93,7 @@ export function getDefaultState() {
     sosSettings: {
       silentMode: false,
       panicCode: "1122",
-      customMessage: "EMERGENCY: I need immediate assistance. Please check on me right now. This is my automated FemCare AI emergency broadcast."
+      customMessage: "EMERGENCY: I need immediate assistance. Please check on me right now. This is my automated FemCare emergency broadcast."
     },
     chatHistory: [
       {
