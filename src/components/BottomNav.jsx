@@ -1,10 +1,10 @@
 import React from 'react';
 import {
-  Home, Calendar, Utensils, Bot, ShieldAlert, Dumbbell, ShoppingBag, BookOpen, PenLine, Flower2, HeartHandshake
+  Home, Calendar, Utensils, Bot, ShieldAlert
 } from 'lucide-react';
 import { useAppState } from '../context/AppStateContext';
 
-export default function BottomNav({ activeTab, setActiveTab, onOpenMoreDrawer }) {
+export default function BottomNav({ activeTab, setActiveTab }) {
   const { t } = useAppState();
 
   const navItems = [
@@ -13,7 +13,6 @@ export default function BottomNav({ activeTab, setActiveTab, onOpenMoreDrawer })
     { id: 'diet', label: t('nav.diet') || 'Diet', icon: Utensils },
     { id: 'ai', label: t('nav.ai') || 'Femi AI', icon: Bot, isHighlight: true },
     { id: 'safety', label: t('nav.safety') || 'SOS', icon: ShieldAlert, isSos: true },
-    { id: 'more', label: t('nav.more') || 'More', icon: Flower2, isMore: true },
   ];
 
   return (
