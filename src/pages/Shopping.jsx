@@ -4,10 +4,11 @@ import {
   SHOPPING_PRODUCTS, PERIOD_POVERTY_CENTERS, PERIOD_MEDICINES,
   AWARENESS_CONDITIONS, MENSTRUAL_MYTHS, RED_FLAGS
 } from '../data/shoppingData';
+import { PRODUCT_GUIDES, PRODUCT_COMPARISON } from '../data/productGuidesData';
 import {
   ShoppingBag, Pill, Brain, Calculator, MapPin, Eye, EyeOff, Leaf,
   PhoneCall, ChevronDown, AlertTriangle, Stethoscope, Lightbulb,
-  HeartPulse, Megaphone, ShieldAlert
+  HeartPulse, Megaphone, ShieldAlert, BookOpen, Lock, ListChecks
 } from 'lucide-react';
 
 const CATEGORY_LABELS = {
@@ -24,6 +25,7 @@ const CATEGORY_ORDER = ['all', 'pads', 'cups', 'tampons', 'underwear', 'wellness
 const SUB_TABS = [
   { id: 'products', label: 'Catalog', icon: ShoppingBag },
   { id: 'medicines', label: 'Medicines', icon: Pill },
+  { id: 'guide', label: 'How to Use', icon: BookOpen },
   { id: 'awareness', label: 'Awareness', icon: Brain },
   { id: 'calculator', label: 'Savings', icon: Calculator },
   { id: 'locator', label: 'Free Centers', icon: MapPin }
@@ -60,8 +62,19 @@ export default function Shopping() {
   const { state, t } = useAppState();
   const [privacyBlur, setPrivacyBlur] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState('products'); // products | medicines | awareness | calculator | locator
+  const [activeTab, setActiveTab] = useState('products'); // products | medicines | guide | awareness | calculator | locator
   const [openCondition, setOpenCondition] = useState('pcos');
+  const [openGuide, setOpenGuide] = useState('pads');
+
+  // Sensitive-content gate for the step-by-step usage guide.
+  // Choice is stored only in this device's localStorage (zero-cloud).
+  const [showSensitive, setShowSensitive] = useState(() => {
+    try { return localStorage.getItem('femcare_sensitive_content') === 'on'; } catch { return false; }
+  });
+  const setSensitive = (on) => {
+    setShowSensitive(on);
+    try { localStorage.setItem('femcare_sensitive_content', on ? 'on' : 'off'); } catch { /* ignore */ }
+  };
 
   // Estimator State
   const [estDays, setEstDays] = useState(state.userProfile.periodDuration || 5);
@@ -297,6 +310,180 @@ export default function Shopping() {
           <p className="text-[11px] text-zinc-500 text-center px-2">
             Emergency? Call <strong className="text-zinc-300">112</strong> • Mental health support: Tele-MANAS <strong className="text-zinc-300">14416</strong>
           </p>
+        </div>
+      )}
+
+      {/* ── How to Use: Product Types & Guides (Sensitive Content) ── */}
+      {activeTab === 'guide' && (
+        <div className="space-y-3">
+          {/* Sensitive Content Gate */}
+          {!showSensitive && (
+            <div className="rounded-2xl p-6 bg-[#1e1727] border border-purple-500/40 text-center space-y-3 relative overflow-hidden">
+              <div className="absolute -top-14 -right-14 w-44 h-44 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+              <div className="w-14 h-14 rounded-2xl bg-purple-950/70 border border-purple-500/40 flex items-center justify-center mx-auto relative">
+                <Lock className="w-6 h-6 text-purple-300" />
+              </div>
+              <h4 className="text-sm font-bold text-white font-['Outfit'] relative">
+                Sensitive Content — Hidden
+              </h4>
+              <p className="text-[11px] text-zinc-400 leading-relaxed relative max-w-[320px] mx-auto">
+                This section contains detailed step-by-step usage instructions and illustrations for period products — including internal products like tampons and menstrual cups.
+                It stays hidden until <strong className="text-zinc-300">you</strong> choose to see it.
+              </p>
+              <button
+                onClick={() => setSensitive(true)}
+                className="relative w-full py-3 rounded-2xl bg-gradient-to-r from-[#b5497a] to-[#d65d95] text-white font-bold text-sm shadow-lg shadow-[#b5497a]/40 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Show Sensitive Content</span>
+              </button>
+              <p className="text-[10px] text-zinc-500 relative">
+                Your choice is saved only on this device • You can hide it again anytime
+              </p>
+            </div>
+          )}
+
+          {showSensitive && (
+            <>
+              {/* Unlocked header with hide option */}
+              <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30">
+                <p className="text-[10px] text-purple-200/80 leading-snug flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 shrink-0" />
+                  Sensitive content is visible on this device.
+                </p>
+                <button
+                  onClick={() => setSensitive(false)}
+                  className="flex items-center gap-1 shrink-0 px-2 py-1 rounded-lg bg-[#1e1727] border border-purple-500/40 text-[10px] font-semibold text-purple-300 hover:text-white transition-colors"
+                >
+                  <EyeOff className="w-3 h-3" />
+                  <span>Hide again</span>
+                </button>
+              </div>
+
+              {/* Comparison Table */}
+              <div className="rounded-2xl p-4 bg-[#1e1727] border border-[#31253e]">
+                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider font-['Outfit'] mb-3">
+                  <ListChecks className="w-4 h-4 text-[#f4a6b9]" />
+                  <span>Compare at a Glance</span>
+                </div>
+                <div className="overflow-x-auto -mx-1 px-1">
+                  <table className="w-full text-[10px] border-collapse">
+                    <thead>
+                      <tr className="text-left text-zinc-400">
+                        <th className="pb-1.5 pr-2 font-semibold">Product</th>
+                        <th className="pb-1.5 pr-2 font-semibold">Change every</th>
+                        <th className="pb-1.5 pr-2 font-semibold">Typical cost</th>
+                        <th className="pb-1.5 pr-2 font-semibold">Eco</th>
+                        <th className="pb-1.5 font-semibold">Great for</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {PRODUCT_COMPARISON.map((row) => (
+                        <tr key={row.type} className="border-t border-[#31253e]">
+                          <td className="py-1.5 pr-2 font-bold text-white whitespace-nowrap">{row.type}</td>
+                          <td className="py-1.5 pr-2 text-pink-300 whitespace-nowrap">{row.change}</td>
+                          <td className="py-1.5 pr-2 text-emerald-300 whitespace-nowrap">{row.cost}</td>
+                          <td className="py-1.5 pr-2 text-zinc-300 whitespace-nowrap">{row.eco}</td>
+                          <td className="py-1.5 text-zinc-400">{row.greatFor}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Product Guides Accordion */}
+              {PRODUCT_GUIDES.map((guide) => {
+                const isOpen = openGuide === guide.id;
+                return (
+                  <div key={guide.id} className="rounded-2xl bg-[#1e1727] border border-[#31253e] overflow-hidden">
+                    <button
+                      onClick={() => setOpenGuide(isOpen ? null : guide.id)}
+                      className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#251d30] transition-colors"
+                    >
+                      <img
+                        src={guide.image}
+                        alt=""
+                        loading="lazy"
+                        onError={hideBrokenImg}
+                        className="w-14 h-14 rounded-xl object-cover shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold text-white font-['Outfit']">{guide.title}</div>
+                        <div className="text-[11px] text-zinc-400 truncate">{guide.subtitle}</div>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-[#f4a6b9]' : 'text-zinc-500'}`} />
+                    </button>
+
+                    {isOpen && (
+                      <div className="px-3.5 pb-3.5 space-y-3.5 animate-in fade-in duration-200">
+                        <img
+                          src={guide.image}
+                          alt={guide.title}
+                          loading="lazy"
+                          onError={hideBrokenImg}
+                          className="w-full h-32 object-cover rounded-xl border border-[#372646]"
+                        />
+
+                        {/* Types */}
+                        <div>
+                          <h5 className="text-[11px] font-bold uppercase tracking-wider text-[#f4a6b9] flex items-center gap-1.5 mb-1.5">
+                            <ListChecks className="w-3.5 h-3.5" />
+                            Types available
+                          </h5>
+                          <div className="space-y-1.5">
+                            {guide.types.map((ty) => (
+                              <div key={ty.name} className="p-2 rounded-lg bg-[#251d30] border border-[#372646] text-[11px]">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-bold text-white text-xs">{ty.name}</span>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#31253e] text-[#f4a6b9] border border-[#3f2a4f] shrink-0">
+                                    {ty.change}
+                                  </span>
+                                </div>
+                                <p className="text-zinc-400 mt-0.5 leading-relaxed">{ty.desc}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* How to use — numbered steps */}
+                        <div>
+                          <h5 className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5 mb-1.5">
+                            <BookOpen className="w-3.5 h-3.5" />
+                            How to use — step by step
+                          </h5>
+                          <ol className="space-y-1.5">
+                            {guide.howToUse.map((step, i) => (
+                              <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-300 leading-relaxed">
+                                <span className="w-4 h-4 rounded-full bg-[#b5497a]/30 border border-[#f4a6b9]/50 text-[#f4a6b9] text-[9px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                  {i + 1}
+                                </span>
+                                <span>{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+
+                        {/* Tips */}
+                        <InfoSection title="Pro tips" icon={Lightbulb} color="text-amber-300" items={guide.tips} />
+
+                        {/* Avoid */}
+                        <InfoSection title="Avoid these mistakes" icon={ShieldAlert} color="text-rose-300" items={guide.avoid} />
+
+                        {/* Optional safety warning (e.g. TSS for tampons) */}
+                        {guide.warning && (
+                          <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/40 text-[11px] text-rose-200/90 leading-relaxed flex items-start gap-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                            <span><strong>Safety warning:</strong> {guide.warning}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </>
+          )}
         </div>
       )}
 

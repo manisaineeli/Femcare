@@ -264,7 +264,13 @@ $images = @(
   @{ f = 'aw-pcos.jpg';           t = 'PCOS / PCOD';                   s = 'Hormones  |  metabolism';  c1 = '#a855f7'; c2 = '#581c87'; i = 'female' },
   @{ f = 'aw-pmdd.jpg';           t = 'PMDD';                          s = 'Severe PMS is real';       c1 = '#6366f1'; c2 = '#1e1b4b'; i = 'female' },
   @{ f = 'aw-endometriosis.jpg';  t = 'Endometriosis';                 s = 'Pain  |  fertility';       c1 = '#e11d48'; c2 = '#4c0519'; i = 'female' },
-  @{ f = 'aw-cramps.jpg';         t = 'Menstrual Cramps';              s = 'Dysmenorrhea';             c1 = '#f97316'; c2 = '#7c2d12'; i = 'waves' }
+  @{ f = 'aw-cramps.jpg';         t = 'Menstrual Cramps';              s = 'Dysmenorrhea';             c1 = '#f97316'; c2 = '#7c2d12'; i = 'waves' },
+  # -- Product usage guides --
+  @{ f = 'guide-choose.jpg';      t = 'Choose Your Period Product';    s = 'PAD | TAMPON | CUP | PANTY'; c1 = '#7c5a8c'; c2 = '#312e81'; i = 'female' },
+  @{ f = 'guide-pads.jpg';        t = 'Pads & Liners';                 s = 'Types  |  How to use';     c1 = '#ec4899'; c2 = '#701a75'; i = 'pad' },
+  @{ f = 'guide-tampon.jpg';      t = 'Tampons';                       s = 'Use it safely';            c1 = '#818cf8'; c2 = '#3730a3'; i = 'tampon' },
+  @{ f = 'guide-cup.jpg';         t = 'Menstrual Cup';                 s = 'Fold  |  Insert  |  Seal'; c1 = '#2dd4bf'; c2 = '#0f766e'; i = 'cup' },
+  @{ f = 'guide-panty.jpg';       t = 'Period Panties';                s = 'Wash  |  Reuse';           c1 = '#a78bfa'; c2 = '#5b21b6'; i = 'panty' }
 )
 
 Write-Host "Generating $($images.Count) images into $outDir ..."
