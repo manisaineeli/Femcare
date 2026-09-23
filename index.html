@@ -5,9 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#120e17" />
     <meta name="description" content="FemCare — Your private menstrual health companion, powered by AI. 100% offline-first, zero server tracking." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PWA: installable + fully offline (self-hosted assets, zero third-party requests) -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- Fonts are bundled locally (public/fonts) so nothing phones home -->
+    <link href="./fonts/fonts.css" rel="stylesheet" />
     <title>FemCare — Private Menstrual Health Companion</title>
   </head>
   <body class="bg-[#120e17] text-[#f4eef6] selection:bg-[#b5497a]/30 min-h-screen antialiased">

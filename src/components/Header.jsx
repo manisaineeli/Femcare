@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppState } from '../context/AppStateContext';
-import { ShieldCheck, Moon, Sun, HeartHandshake, Globe, Sparkles } from 'lucide-react';
+import { ShieldCheck, Moon, Sun, HeartHandshake, Globe, WifiOff } from 'lucide-react';
 
 export default function Header({ onOpenPrivacyShield }) {
   const { state, setLanguage, toggleDarkMode, togglePartnerMode } = useAppState();
+
+  // Live connectivity badge — proves the app keeps working with no internet
+  const [isOffline, setIsOffline] = useState(
+    typeof navigator !== 'undefined' && navigator.onLine === false
+  );
+  useEffect(() => {
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => setIsOffline(false);
+    window.addEventListener('offline', goOffline);
+    window.addEventListener('online', goOnline);
+    return () => {
+      window.removeEventListener('offline', goOffline);
+      window.removeEventListener('online', goOnline);
+    };
+  }, []);
 
   const languages = [
     { code: 'en', label: 'EN' },
@@ -34,6 +49,17 @@ export default function Header({ onOpenPrivacyShield }) {
             </p>
           </div>
         </div>
+
+        {/* Offline mode badge — the app is fully functional without internet */}
+        {isOffline && (
+          <span
+            title="No internet needed — FemCare is cached on your device and 100% offline"
+            className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/40 ml-1 shrink-0"
+          >
+            <WifiOff className="w-3 h-3" />
+            Offline
+          </span>
+        )}
 
         {/* Action Controls */}
         <div className="flex items-center gap-1.5">

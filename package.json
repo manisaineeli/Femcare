@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "verify": "node scripts/verify-period.mjs",
+    "verify:sw": "node scripts/verify-sw.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

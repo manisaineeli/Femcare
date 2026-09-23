@@ -6,14 +6,15 @@
 ---
 
 ## 🌟 Key Highlights & Wow Factors
-1. **100% Offline-First Architecture:** Zero network transmissions. Zero cloud databases. Sandboxed in browser `localStorage` (`femcare_state_v1`).
-2. **Multilingual Support:** One-tap toggle between **English**, **Hindi (हिन्दी)**, **Tamil (தமிழ்)**, and **Telugu (తెలుగు)**.
-3. **AI Symptom Triage Analyzer (WOW 1):** Clinical heuristic evaluating pain (1-10), flow rate, and red flags (dizziness, fever, foul odor) into Benign, Moderate, Urgent, or Critical triage levels with emergency action guidance.
-4. **Cycle-Phased Fitness Planner (WOW 2):** Tailored workouts adapting to biological shifts (Restorative yoga in Menstrual phase, High-intensity strength in Follicular, HIIT in Ovulatory, Pilates/steady cardio in Luteal).
-5. **Period Poverty & Emergency Pad Locator (WOW 3):** Verified guide to Jan Aushadhi Kendras (₹1 Suvidha pads), village ASHA / Anganwadi centers, and Red Cross emergency pad banks.
-6. **AI Period Journal (WOW 4):** Text and voice-enabled reflections with mood logging and cycle correlation.
-7. **Partner Empathy Mode (WOW 5):** Dedicated educational mode for male partners, brothers, and fathers to foster empathy and break menstrual taboos.
-8. **Blockchain-Style Privacy Shield Proof (WOW 6):** Live verification modal with zero-network monitor, raw local JSON inspector, and permanent local data wipe.
+1. **100% Offline-First PWA:** Zero network transmissions. Zero cloud databases. Sandboxed in browser `localStorage` (`femcare_state_v1`), with a service worker that caches the entire app shell so FemCare opens, installs and runs with **no internet at all** (self-hosted fonts — zero third-party requests).
+2. **Realistic 3–8 Day Period Logging:** Both onboarding and the Period Record form enforce a medically realistic **3 to 8 day** start→end range, so predictions are always trained on sane data.
+3. **Multilingual Support:** One-tap toggle between **English**, **Hindi (हिन्दी)**, **Tamil (தமிழ்)**, and **Telugu (తెలుగు)**.
+4. **AI Symptom Triage Analyzer (WOW 1):** Clinical heuristic evaluating pain (1-10), flow rate, and red flags (dizziness, fever, foul odor) into Benign, Moderate, Urgent, or Critical triage levels with emergency action guidance.
+5. **Cycle-Phased Fitness Planner (WOW 2):** Tailored workouts adapting to biological shifts (Restorative yoga in Menstrual phase, High-intensity strength in Follicular, HIIT in Ovulatory, Pilates/steady cardio in Luteal).
+6. **Period Poverty & Emergency Pad Locator (WOW 3):** Verified guide to Jan Aushadhi Kendras (₹1 Suvidha pads), village ASHA / Anganwadi centers, and Red Cross emergency pad banks.
+7. **AI Period Journal (WOW 4):** Text and voice-enabled reflections with mood logging and cycle correlation.
+8. **Partner Empathy Mode (WOW 5):** Dedicated educational mode for male partners, brothers, and fathers to foster empathy and break menstrual taboos.
+9. **Blockchain-Style Privacy Shield Proof (WOW 6):** Live verification modal with zero-network monitor, raw local JSON inspector, and permanent local data wipe.
 
 ---
 
@@ -45,6 +46,31 @@ Open `http://localhost:5173` in your browser.
 npm run build
 ```
 
+### 4. Verify the Period Range Rule (3–8 days)
+```bash
+npm run verify        # period range rules (3–8 days) + cycle engine
+npm run verify:sw     # offline service-worker behaviour (run `npm run build` first)
+```
+Onboarding, the Period Record form, the cycle engine and the shop calculator all share one rule: a period runs from **3 to 8 days**, start → end inclusive.
+
+---
+
+## 📴 Offline-First PWA — How to Prove It
+
+FemCare is a real installable PWA: after the **first visit**, it boots with the internet switched off.
+
+1. Build and serve the app (service workers need `http(s)`, not `file://`):
+   ```bash
+   npm run build
+   npm run preview        # http://localhost:4173
+   ```
+2. Open the app once in the browser — the service worker (`public/sw.js`) installs and precaches the app shell, hashed JS/CSS bundles, icons, manifest and self-hosted fonts.
+3. Switch your machine/phone to **Airplane mode** (or DevTools → Network → *Offline*).
+4. Reload the page — the full app opens from cache. The header shows an amber **Offline** badge, and tracking, AI chat, diet, SOS and the calendar all keep working.
+5. Optional: browser menu → **Install FemCare** / *Add to Home Screen* — it launches standalone with its own icon (`manifest.webmanifest`).
+
+Zero third-party requests: fonts are bundled in `public/fonts` (re-run `powershell -File scripts/download-fonts.ps1` only if you change font families).
+
 ---
 
 ## 🎬 3-Minute Live Demo Script
@@ -53,7 +79,7 @@ npm run build
 |---|---|---|
 | **0:00 - 0:30** | **Header & Privacy Shield** | *"Most period tracking apps sell sensitive reproductive data to advertisers. FemCare AI is built on a zero-cloud architecture. Look at this Privacy Shield indicator in the header: when clicked, it reveals zero outgoing network calls and shows all user state is locked in sandboxed local storage on this phone alone."* |
 | **0:30 - 1:00** | **Dashboard & Multilingual Toggle** | *"Notice the dark mode default for eye comfort. We see our current phase: Follicular Phase (Energy Rising), cycle day 13, and next period countdown. Let's switch language to Hindi or Tamil—instantly, all phase descriptions, facts, and advice switch seamlessly without reloading."* |
-| **1:00 - 1:40** | **Cycle Tracker & Month Calendar** | *"On the Cycle tab, our interactive month calendar marks period days (rose), fertile window (purple), and ovulation (amber). When we log today's flow and pain level (e.g. 6/10), the app provides instant medical recommendations."* |
+| **1:00 - 1:40** | **Cycle Tracker & Month Calendar** | *"On the Cycle tab, our interactive month calendar marks period days (rose), fertile window (purple), and ovulation (amber). Recording a period asks for a from → to date range validated to a realistic 3–8 days, then logging today's flow and pain level (e.g. 6/10) gives instant medical recommendations."* |
 | **1:40 - 2:10** | **Diet Plan & Cycle Weight** | *"Nutrition shifts with our hormones. In the Menstrual phase, we get Indian iron-boosting recipes like Palak Dal Khichdi and Til-Gur ladoos. In the Fitness tab, the Recharts graph proves how luteal water weight (+1.2kg) is normal fluid retention, stopping panic."* |
 | **2:10 - 2:40** | **AI Assistant & Symptom Triage (WOW)** | *"Let's ask Femi: 'How to relieve severe cramps?'—we get instant offline answers. Now let's run the AI Symptom Triage Analyzer with severe pain or soaking pads: Femi immediately raises a clinical emergency triage alert with direct 112/102 hospital helplines."* |
 | **2:40 - 3:00** | **Safety SOS & Shame-Free Shop** | *"One tap on the Emergency SOS prepares a WhatsApp broadcast and SMS to our Trusted Circle. And in the Shop tab, Privacy Packaging Mode blurs items, while the locator connects rural and low-income girls to ₹1 Jan Aushadhi pads."* |

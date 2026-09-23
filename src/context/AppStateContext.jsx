@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { loadState, saveState, clearAllLocalData, getDefaultState } from '../utils/storage';
-import { calculateCycleStatus, daysBetween } from '../utils/cycleCalculator';
+import { calculateCycleStatus, daysBetween, clampPeriodDuration } from '../utils/cycleCalculator';
 import { translations } from '../data/translations';
 
 const AppStateContext = createContext(null);
@@ -119,10 +119,11 @@ export function AppStateProvider({ children }) {
         a.startDate < b.startDate ? 1 : -1
       );
 
-      // If this is the latest period, refresh the cycle predictions from it
+      // If this is the latest period, refresh the cycle predictions from it.
+      // Predicted period duration is always clamped to the 3–8 day rule.
       const isLatest = updatedHistory.length === 0 || updatedHistory[0].id === entry.id;
       const profileUpdates = isLatest
-        ? { lastPeriodStartDate: startDate, periodDuration: duration }
+        ? { lastPeriodStartDate: startDate, periodDuration: clampPeriodDuration(duration) }
         : {};
 
       return {

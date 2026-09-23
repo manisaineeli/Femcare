@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { X, Check, Droplet, CalendarDays, Activity, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAppState } from '../context/AppStateContext';
-import { getPainRecommendation, daysBetween } from '../utils/cycleCalculator';
+import {
+  getPainRecommendation,
+  daysBetween,
+  validatePeriodRange,
+  periodEndBounds,
+  MIN_PERIOD_DAYS,
+  MAX_PERIOD_DAYS
+} from '../utils/cycleCalculator';
 
 const todayKey = new Date().toISOString().split('T')[0];
 
@@ -27,6 +34,10 @@ export default function PeriodRecordModal({ isOpen, onClose }) {
 
   const painTip = getPainRecommendation(pain);
   const duration = startDate && endDate ? daysBetween(startDate, endDate) + 1 : 0;
+  // Allowed end-date window for the chosen start (3–8 days, never past today)
+  const endBounds = periodEndBounds(startDate, todayKey);
+  const durationValid =
+    duration >= MIN_PERIOD_DAYS && duration <= MAX_PERIOD_DAYS && !errors.endDate;
 
   const symptomOptions = [
     { id: 'cramps', label: 'Cramps', emoji: '⚡' },
@@ -49,16 +60,19 @@ export default function PeriodRecordModal({ isOpen, onClose }) {
 
   const validate = () => {
     const errs = {};
-    if (!startDate) errs.startDate = 'Select the start date';
-    if (!endDate) errs.endDate = 'Select the end date';
-
-    if (startDate && endDate) {
-      const days = daysBetween(startDate, endDate) + 1;
-      if (days < 1) errs.endDate = 'Must be on or after the start date';
-      else if (days > 15) errs.endDate = 'A period lasts up to 15 days';
+    if (!startDate) {
+      errs.startDate = 'Select the start date';
+    } else if (startDate > todayKey) {
+      errs.startDate = 'Cannot be in the future';
     }
-    if (startDate && startDate > todayKey) errs.startDate = 'Cannot be in the future';
-    if (endDate && endDate > todayKey) errs.endDate = 'Cannot be in the future';
+
+    if (!endDate) {
+      errs.endDate = 'Select the end date';
+    } else if (startDate) {
+      // Single source of truth: the 3–8 day period rule
+      const rangeErr = validatePeriodRange(startDate, endDate, todayKey);
+      if (rangeErr) errs.endDate = rangeErr;
+    }
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -104,7 +118,7 @@ export default function PeriodRecordModal({ isOpen, onClose }) {
               <Droplet className="w-4 h-4 text-[#f4a6b9]" />
               Record a Period
             </h3>
-            <p className="text-[11px] text-zinc-400">From → to dates + details (private on device)</p>
+            <p className="text-[11px] text-zinc-400">From → to dates (3–8 days) + details • private on device</p>
           </div>
           <button
             onClick={onClose}
@@ -141,7 +155,8 @@ export default function PeriodRecordModal({ isOpen, onClose }) {
             <input
               type="date"
               value={endDate}
-              max={todayKey}
+              min={endBounds.min || undefined}
+              max={endBounds.max || todayKey}
               onChange={(e) => {
                 setEndDate(e.target.value);
                 if (errors.endDate) setErrors((p) => ({ ...p, endDate: undefined }));
@@ -152,11 +167,17 @@ export default function PeriodRecordModal({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Live duration */}
-        {duration > 0 && !errors.endDate && (
-          <p className="text-[11px] text-emerald-400 mt-2 flex items-center gap-1.5">
-            <Sparkles className="w-3 h-3" />
-            Duration: {duration} day{duration > 1 ? 's' : ''}
+        {/* Live duration — must land in the 3–8 day window */}
+        {duration > 0 && (
+          <p
+            className={`text-[11px] mt-2 flex items-center gap-1.5 ${
+              durationValid ? 'text-emerald-400' : 'text-amber-400'
+            }`}
+          >
+            <Sparkles className="w-3 h-3 shrink-0" />
+            {durationValid
+              ? `Duration: ${duration} days ✓ (${MIN_PERIOD_DAYS}–${MAX_PERIOD_DAYS} day range)`
+              : `Duration: ${duration} day${duration > 1 ? 's' : ''} — periods last ${MIN_PERIOD_DAYS}–${MAX_PERIOD_DAYS} days`}
           </p>
         )}
 

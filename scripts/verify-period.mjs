@@ -1,5 +1,15 @@
 // Quick verification of period record logic (run with: node scripts/verify-period.mjs)
-import { daysBetween, formatDateKey, getMonthCalendarData, calculateCycleStatus } from '../src/utils/cycleCalculator.js';
+import {
+  daysBetween,
+  formatDateKey,
+  getMonthCalendarData,
+  calculateCycleStatus,
+  MIN_PERIOD_DAYS,
+  MAX_PERIOD_DAYS,
+  validatePeriodRange,
+  clampPeriodDuration,
+  periodEndBounds
+} from '../src/utils/cycleCalculator.js';
 
 let pass = 0, fail = 0;
 const check = (name, cond) => {
@@ -10,6 +20,28 @@ const check = (name, cond) => {
 // ── daysBetween (used for duration calc) ──
 check('daysBetween same day = 0', daysBetween('2026-09-10', '2026-09-10') === 0);
 check('daysBetween 10→14 = 4 (duration 5)', daysBetween('2026-09-10', '2026-09-14') === 4);
+
+// ── 3–8 day period range rule ──
+check('MIN_PERIOD_DAYS = 3', MIN_PERIOD_DAYS === 3);
+check('MAX_PERIOD_DAYS = 8', MAX_PERIOD_DAYS === 8);
+check('2-day range rejected', validatePeriodRange('2026-09-10', '2026-09-11', '2026-09-20') !== '');
+check('3-day range accepted', validatePeriodRange('2026-09-10', '2026-09-12', '2026-09-20') === '');
+check('8-day range accepted', validatePeriodRange('2026-09-10', '2026-09-17', '2026-09-20') === '');
+check('9-day range rejected', validatePeriodRange('2026-09-10', '2026-09-18', '2026-09-20') !== '');
+check('end before start rejected', validatePeriodRange('2026-09-14', '2026-09-10', '2026-09-20') !== '');
+check('future dates rejected', validatePeriodRange('2026-09-21', '2026-09-25', '2026-09-20') !== '');
+check('clampPeriodDuration(1) = 3', clampPeriodDuration(1) === 3);
+check('clampPeriodDuration(5) = 5', clampPeriodDuration(5) === 5);
+check('clampPeriodDuration(15) = 8', clampPeriodDuration(15) === 8);
+check(
+  'end bounds follow 3–8 rule',
+  JSON.stringify(periodEndBounds('2026-09-10', '2026-09-30')) ===
+    JSON.stringify({ min: '2026-09-12', max: '2026-09-17' })
+);
+check(
+  'end bounds never exceed today',
+  periodEndBounds('2026-09-19', '2026-09-20').max === '2026-09-20'
+);
 
 // ── Recorded period days on the calendar ──
 const history = [

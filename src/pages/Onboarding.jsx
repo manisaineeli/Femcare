@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useAppState } from '../context/AppStateContext';
-import { daysBetween } from '../utils/cycleCalculator';
+import {
+  daysBetween,
+  validatePeriodRange,
+  periodEndBounds,
+  MIN_PERIOD_DAYS,
+  MAX_PERIOD_DAYS
+} from '../utils/cycleCalculator';
 import { ArrowRight, ArrowLeft, Lock, ShieldCheck, User, CalendarDays, Droplet, Sparkles } from 'lucide-react';
 
 const todayKey = new Date().toISOString().split('T')[0];
@@ -47,25 +53,27 @@ export default function Onboarding() {
 
   const periodDurationDays =
     periodStart && periodEnd ? daysBetween(periodStart, periodEnd) + 1 : 0;
+  // Allowed end-date window for the chosen start (3–8 days, never past today)
+  const endBounds = periodEndBounds(periodStart, todayKey);
+  const durationValid =
+    periodDurationDays >= MIN_PERIOD_DAYS &&
+    periodDurationDays <= MAX_PERIOD_DAYS &&
+    !errors.periodEnd;
 
   const validateStep2 = () => {
     const errs = {};
-    if (!periodStart) errs.periodStart = 'Please select the start date';
-    if (!periodEnd) errs.periodEnd = 'Please select the end date';
-
-    if (periodStart && periodEnd) {
-      const duration = daysBetween(periodStart, periodEnd) + 1;
-      if (duration < 1) {
-        errs.periodEnd = 'End date must be on or after the start date';
-      } else if (duration > 15) {
-        errs.periodEnd = 'A period lasts up to 15 days — please check the dates';
-      }
-    }
-    if (periodStart && periodStart > todayKey) {
+    if (!periodStart) {
+      errs.periodStart = 'Please select the start date';
+    } else if (periodStart > todayKey) {
       errs.periodStart = 'Start date cannot be in the future';
     }
-    if (periodEnd && periodEnd > todayKey) {
-      errs.periodEnd = 'End date cannot be in the future';
+
+    if (!periodEnd) {
+      errs.periodEnd = 'Please select the end date';
+    } else if (periodStart) {
+      // Single source of truth: the 3–8 day period rule
+      const rangeErr = validatePeriodRange(periodStart, periodEnd, todayKey);
+      if (rangeErr) errs.periodEnd = rangeErr;
     }
 
     setErrors(errs);
@@ -213,7 +221,7 @@ export default function Onboarding() {
             <span className="text-[10px] text-zinc-500">Step 2 of 2</span>
           </div>
           <p className="text-[11px] text-zinc-400 mt-1.5 leading-relaxed">
-            Enter the dates your period ran — from the first day to the last day. This powers all your predictions.
+            Enter the dates your period ran — from the first day to the last day (a period lasts {MIN_PERIOD_DAYS}–{MAX_PERIOD_DAYS} days). This powers all your predictions.
           </p>
 
           {/* From / To dates */}
@@ -248,7 +256,8 @@ export default function Onboarding() {
               <input
                 type="date"
                 value={periodEnd}
-                max={todayKey}
+                min={endBounds.min || undefined}
+                max={endBounds.max || todayKey}
                 onChange={(e) => {
                   setPeriodEnd(e.target.value);
                   if (errors.periodEnd) setErrors((p) => ({ ...p, periodEnd: undefined }));
@@ -261,11 +270,17 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Live duration preview */}
-          {periodDurationDays > 0 && !errors.periodEnd && (
-            <p className="text-[11px] text-emerald-400 mt-2 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3" />
-              Period lasted {periodDurationDays} day{periodDurationDays > 1 ? 's' : ''} ({periodStart} → {periodEnd})
+          {/* Live duration preview — must land in the 3–8 day window */}
+          {periodDurationDays > 0 && (
+            <p
+              className={`text-[11px] mt-2 flex items-center gap-1.5 ${
+                durationValid ? 'text-emerald-400' : 'text-amber-400'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 shrink-0" />
+              {durationValid
+                ? `Period lasted ${periodDurationDays} days ✓ (${periodStart} → ${periodEnd})`
+                : `Duration: ${periodDurationDays} day${periodDurationDays > 1 ? 's' : ''} — periods last ${MIN_PERIOD_DAYS}–${MAX_PERIOD_DAYS} days`}
             </p>
           )}
 

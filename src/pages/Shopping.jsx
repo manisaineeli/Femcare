@@ -614,12 +614,19 @@ export default function Shopping() {
               <label className="font-semibold block mb-1">Period Length (Days):</label>
               <input
                 type="number"
-                min="2"
-                max="10"
+                min="3"
+                max="8"
                 value={estDays}
-                onChange={(e) => setEstDays(parseInt(e.target.value) || 5)}
+                onChange={(e) =>
+                  setEstDays(
+                    Math.min(8, Math.max(3, parseInt(e.target.value) || 5))
+                  )
+                }
                 className="w-full bg-[#251d30] border border-[#372646] rounded-xl px-3 py-1.5 text-white"
               />
+              <span className="text-[10px] text-zinc-500 block mt-1">
+                Allowed range: 3–8 days
+              </span>
             </div>
 
             <div>

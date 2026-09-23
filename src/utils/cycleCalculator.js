@@ -155,6 +155,58 @@ export function getMonthCalendarData(year, month, lastPeriodDateStr, cycleLength
 }
 
 /**
+ * ── Period duration rules ──────────────────────────────────────────
+ * Product requirement: a recorded period must run from 3 to 8 days
+ * (start date → end date inclusive). Shared by Onboarding and the
+ * Period Record modal so both forms always agree.
+ */
+export const MIN_PERIOD_DAYS = 3;
+export const MAX_PERIOD_DAYS = 8;
+
+/**
+ * Clamp any duration into the allowed 3–8 day window.
+ */
+export function clampPeriodDuration(days) {
+  return Math.min(MAX_PERIOD_DAYS, Math.max(MIN_PERIOD_DAYS, days));
+}
+
+/**
+ * Validate a from → to period range.
+ * Returns '' when valid, otherwise a human-readable error message.
+ * `todayKey` is optional — pass YYYY-MM-DD to also block future dates.
+ */
+export function validatePeriodRange(startDate, endDate, todayKey) {
+  if (!startDate) return 'Select the start date';
+  if (!endDate) return 'Select the end date';
+  if (todayKey) {
+    if (startDate > todayKey) return 'Start date cannot be in the future';
+    if (endDate > todayKey) return 'End date cannot be in the future';
+  }
+
+  const days = daysBetween(startDate, endDate) + 1;
+  if (days < 1) return 'End date must be on or after the start date';
+  if (days < MIN_PERIOD_DAYS) {
+    return `A period lasts at least ${MIN_PERIOD_DAYS} days — please check the dates`;
+  }
+  if (days > MAX_PERIOD_DAYS) {
+    return `A period lasts up to ${MAX_PERIOD_DAYS} days — please check the dates`;
+  }
+  return '';
+}
+
+/**
+ * Earliest / latest valid end dates (YYYY-MM-DD) for a given start date,
+ * following the 3–8 day rule and never allowing dates beyond today.
+ */
+export function periodEndBounds(startDate, todayKey) {
+  if (!startDate) return { min: '', max: todayKey || '' };
+  const start = new Date(`${startDate}T00:00:00`);
+  const min = formatDateKey(addDays(start, MIN_PERIOD_DAYS - 1));
+  const latest = formatDateKey(addDays(start, MAX_PERIOD_DAYS - 1));
+  return { min, max: todayKey && latest > todayKey ? todayKey : latest };
+}
+
+/**
  * Pain Scale recommendation generator
  */
 export function getPainRecommendation(painScore) {

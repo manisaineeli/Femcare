@@ -1,0 +1,39 @@
+{
+  "name": "FemCare — Private Menstrual Health Companion",
+  "short_name": "FemCare",
+  "description": "100% offline-first menstrual health companion. Cycle tracking, symptom triage and Femi AI all run on-device — your data never leaves your phone.",
+  "start_url": "./",
+  "scope": "./",
+  "id": "femcare-app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#120e17",
+  "theme_color": "#120e17",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

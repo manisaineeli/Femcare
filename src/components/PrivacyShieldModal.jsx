@@ -75,6 +75,17 @@ export default function PrivacyShieldModal({ isOpen, onClose }) {
               </p>
             </div>
           </div>
+
+          <div className="p-3 rounded-xl bg-[#231830] border border-[#3d2a52] flex items-start gap-3">
+            <WifiOff className="w-5 h-5 text-sky-400 mt-0.5 shrink-0" />
+            <div>
+              <div className="text-xs font-semibold text-white">Offline PWA — Works With Zero Internet</div>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                The whole app (pages, fonts, AI, tracking) is cached on this device by a service worker.
+                Turn off Wi-Fi and everything — including the AI assistant — keeps working.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Toggle Local State JSON Inspector */}
