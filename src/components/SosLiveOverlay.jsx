@@ -7,11 +7,16 @@ import { useAppState } from '../context/AppStateContext';
 import { isFeature } from '../config/features';
 import {
   getCurrentLocation, buildSosMessage, whatsappShareLink, whatsappDirectLink,
-  smsLink, dialNumber, copyText,
+  whatsappTargets, smsLink, dialNumber, openViaIframe, copyText,
 } from '../utils/sosLiveLocation';
+import { showSystemNotification } from '../utils/notifications';
 
-// Full-screen Live SOS: grabs geolocation, broadcasts the location link to the
-// trusted circle (WhatsApp + SMS) and attempts the emergency call.
+// Full-screen Live SOS: grabs geolocation, then AUTOMATICALLY
+//   1. opens WhatsApp chat(s) to the trusted circle with the live location,
+//   2. prepares the emergency SMS to every trusted contact (hidden iframe —
+//      never popup-blocked, so it fires even after the async GPS wait),
+//   3. raises an OS-level notification,
+//   4. opens the dialer for the first trusted contact (112 if none saved).
 // Triggered by the Volume-Up gesture (double press / 2-second hold).
 export default function SosLiveOverlay({ isOpen, source = 'emergency SOS', onClose }) {
   const { state } = useAppState();
@@ -37,27 +42,65 @@ export default function SosLiveOverlay({ isOpen, source = 'emergency SOS', onClo
     const m = buildSosMessage({
       name, loc: locArg, custom: state.sosSettings?.customMessage, source,
     });
-    const wa = window.open(whatsappShareLink(m), '_blank');
-    addLog(
-      wa
-        ? 'Opening WhatsApp share with your live location...'
-        : 'Popup blocked by the browser - use the buttons below to send.'
-    );
     const phones = contacts.map((c) => c.phone).filter(Boolean);
-    if (phones.length) {
-      const sms = window.open(smsLink(phones, m), '_blank');
-      if (!sms) addLog('SMS composer blocked - tap "SMS all" below.');
-      else addLog(`SMS to ${phones.length} trusted contact(s) prepared.`);
-    } else {
-      addLog('No trusted contacts saved yet - add them in Safety.');
+    const primary = contacts[0];
+
+    // ── 1) WHATSAPP: one direct chat per trusted contact, pre-filled ──
+    if (isFeature('sosAutoAlertCircle')) {
+      const urls = whatsappTargets(contacts, m);
+      let opened = 0;
+      let blocked = false;
+      for (let i = 0; i < urls.length; i++) {
+        const win = window.open(urls[i], '_blank');
+        if (win) opened += 1;
+        else { blocked = true; break; }
+      }
+      if (opened > 0 && contacts.length === 0) {
+        addLog('WhatsApp share opened with your live location - pick a contact and hit send.');
+      } else if (opened === contacts.length && contacts.length > 0) {
+        addLog(`WhatsApp opened for all ${contacts.length} trusted contacts - hit send in each chat.`);
+      } else if (opened > 0) {
+        addLog(`WhatsApp opened for ${opened}/${contacts.length} contact(s) - tap WA below for the rest.`);
+      }
+      if (blocked) {
+        addLog('Browser blocked the extra WhatsApp popups - tap the green WA buttons below (one tap each).');
+      }
+      if (contacts.length === 0) {
+        addLog('No trusted contacts saved yet - add them in Safety for direct alerts.');
+      }
     }
-    if (isFeature('sosEmergencyAutoDial')) {
-      addLog('Emergency call to 112 dialing in 1s (tap STOP if this is a test)...');
+
+    // ── 2) EMERGENCY SMS to the whole circle (never popup-blocked) ──
+    if (isFeature('sosAutoAlertCircle') && phones.length) {
+      openViaIframe(smsLink(phones, m));
+      addLog(`Emergency SMS to ${phones.length} trusted contact(s) prepared automatically - tap send.`);
+    }
+
+    // ── 3) OS-level notification so the device itself flags the SOS ──
+    try {
+      showSystemNotification('FemCare SOS ACTIVE', {
+        body: phones.length
+          ? `Live location alert prepared for ${phones.length} trusted contact(s).`
+          : 'Live location SOS started - add trusted contacts in Safety.',
+        tag: 'femcare-sos',
+      });
+    } catch { /* notifications optional */ }
+
+    // ── 4) AUTO-CALL: dialer opens for the first trusted contact ──
+    if (isFeature('sosAutoDialPrimaryContact') && primary) {
+      addLog(`Auto-dialing ${primary.name} in 1.5s (tap STOP if this is a test)...`);
+      dialTimerRef.current = setTimeout(() => {
+        if (stoppedRef.current) return;
+        dialNumber(primary.phone);
+        addLog(`Dialer opened for ${primary.name} (${primary.relation}) - press call.`);
+      }, 1500);
+    } else if (isFeature('sosEmergencyAutoDial')) {
+      addLog('Emergency call to 112 dialing in 1.5s (tap STOP if this is a test)...');
       dialTimerRef.current = setTimeout(() => {
         if (stoppedRef.current) return;
         addLog('Dialing 112 now.');
         dialNumber('112');
-      }, 1200);
+      }, 1500);
     }
   };
 
@@ -76,7 +119,9 @@ export default function SosLiveOverlay({ isOpen, source = 'emergency SOS', onClo
     let watchId = null;
 
     (async () => {
-      const pos = await getCurrentLocation({ timeout: 8000 });
+      // Fast first fix (5s) so the WhatsApp window.open still lands inside
+      // the browser's ~5s user-gesture window and is NOT popup-blocked.
+      const pos = await getCurrentLocation({ timeout: 5000 });
       if (cancelled || stoppedRef.current) return;
       setLoc(pos);
       addLog(pos.ok ? `Live location locked (+/-${pos.accuracy} m).` : `Location unavailable: ${pos.error}`);

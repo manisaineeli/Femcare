@@ -81,8 +81,9 @@ export default function Safety({ onOpenSOS }) {
         <p className="text-[10px] text-rose-300/90 flex items-start gap-1.5">
           <Volume2 className="w-3.5 h-3.5 mt-px shrink-0" />
           <span>
-            Hands-free Live SOS: <b>double-press the VOL+ button</b>, or <b>hold it for 2 seconds</b> - it shares your
-            live location with your trusted circle and dials emergency 112. The one-tap button above works exactly as before.
+            Hands-free Live SOS: <b>double-press the VOL+ button</b>, or <b>hold it for 2 seconds</b> — the app locks your
+            GPS, then <b>automatically opens WhatsApp chats + SMS to every trusted contact</b> with your live location and
+            <b> pre-dials your first contact</b> (112 stays one tap away). The one-tap button above works exactly as before.
           </span>
         </p>
       </div>

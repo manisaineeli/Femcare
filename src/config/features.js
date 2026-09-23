@@ -11,7 +11,9 @@ export const FEATURES = {
   // ---- Safety / SOS ----
   sosVolumeGesture: true, // Volume-Up double-press / 2-second hold triggers live SOS
   sosLiveLocation: true, // Full-screen SOS with geolocation + trusted-contact broadcast
-  sosEmergencyAutoDial: true, // Attempt emergency call (112) after SOS fires
+  sosAutoAlertCircle: true, // Auto-open WhatsApp chat(s) + SMS composer with live location
+  sosAutoDialPrimaryContact: true, // Auto-open dialer for the first trusted contact after SOS
+  sosEmergencyAutoDial: true, // Fallback: dial 112 when no trusted contact is saved
   sosOneTapModal: true, // Existing one-tap SOS modal (always keep for compatibility)
 
   // ---- FemCare AI ----

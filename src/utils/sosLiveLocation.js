@@ -78,6 +78,16 @@ export function whatsappDirectLink(phone, body) {
   return `https://wa.me/${digits}?text=${encodeURIComponent(body)}`;
 }
 
+/**
+ * WhatsApp URLs for the whole trusted circle, in order:
+ * one direct chat per contact (message pre-filled), or the generic
+ * share picker when no contacts are saved yet.
+ */
+export function whatsappTargets(contacts = [], body) {
+  if (!contacts.length) return [whatsappShareLink(body)];
+  return contacts.map((c) => whatsappDirectLink(c?.phone, body));
+}
+
 /** SMS app with recipients + pre-filled body (Android/iOS accept comma list). */
 export function smsLink(phones = [], body) {
   const list = phones.map(phoneDigits).filter(Boolean).join(',');
@@ -86,19 +96,29 @@ export function smsLink(phones = [], body) {
   return `sms:${list}?body=${encoded}`;
 }
 
-/** Open a tel: URI without navigating the app away (dialer overlay). */
-export function dialNumber(number) {
+/**
+ * Fire a tel:/sms: URL from a hidden iframe.
+ * Unlike window.open(), this is NEVER popup-blocked, so the SOS flow can
+ * open the dialer / messaging app automatically even after an async
+ * geolocation wait (where browsers strip the user-gesture permission).
+ */
+export function openViaIframe(url) {
   try {
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     iframe.setAttribute('aria-hidden', 'true');
-    iframe.src = `tel:${number}`;
+    iframe.src = url;
     document.body.appendChild(iframe);
-    setTimeout(() => iframe.remove(), 4000);
+    setTimeout(() => iframe.remove(), 6000);
     return true;
   } catch {
     return false;
   }
+}
+
+/** Open a tel: URI without navigating the app away (dialer overlay). */
+export function dialNumber(number) {
+  return openViaIframe(`tel:${number}`);
 }
 
 /** Copy text to clipboard (with a fallback for older browsers). */

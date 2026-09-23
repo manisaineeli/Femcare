@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "verify": "node scripts/verify-period.mjs",
+    "verify:sos": "node scripts/verify-sos.mjs",
     "verify:sw": "node scripts/verify-sw.mjs",
     "preview": "vite preview"
   },

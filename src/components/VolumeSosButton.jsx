@@ -122,15 +122,16 @@ export default function VolumeSosButton({ onTrigger, disabled = false }) {
   return (
     <div className="fixed right-4 bottom-24 z-40 flex flex-col items-end gap-1.5 pointer-events-none">
       {hint && (
-        <div className="pointer-events-none text-[9px] leading-tight text-center px-2 py-1 rounded-lg bg-[#241622]/95 border border-red-500/40 text-red-200 shadow-lg max-w-[130px]">
-          VOL+ : double-press<br />or hold 2s = live SOS
+        <div className="pointer-events-none text-[9px] leading-tight text-center px-2 py-1 rounded-lg bg-[#241622]/95 border border-red-500/40 text-red-200 shadow-lg max-w-[140px]">
+          VOL+ : double-press<br />or hold 2s =<br />
+          <span className="text-red-400 font-bold">auto WA + SMS + call</span>
         </div>
       )}
       <button
         type="button"
         disabled={disabled}
-        aria-label="Volume Up SOS - double press or hold 2 seconds"
-        title="Double-press or hold 2s for Live SOS"
+        aria-label="Volume Up SOS - double press or hold 2 seconds to automatically WhatsApp, SMS and call your trusted circle"
+        title="Double-press or hold 2s: auto WhatsApp + SMS + call with live location"
         onPointerDown={handlePointerDown}
         onPointerUp={registerRelease}
         onPointerLeave={clearHold}
