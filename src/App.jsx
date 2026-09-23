@@ -4,6 +4,7 @@ import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import PrivacyShieldModal from './components/PrivacyShieldModal';
 import SymptomLoggerModal from './components/SymptomLoggerModal';
+import PeriodRecordModal from './components/PeriodRecordModal';
 import SOSModal from './components/SOSModal';
 import SosLiveOverlay from './components/SosLiveOverlay';
 import VolumeSosButton from './components/VolumeSosButton';
@@ -30,6 +31,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [showPrivacyShield, setShowPrivacyShield] = useState(false);
   const [showSymptomLogger, setShowSymptomLogger] = useState(false);
+  const [showPeriodRecord, setShowPeriodRecord] = useState(false);
   const [showSOSModal, setShowSOSModal] = useState(false);
   // Live SOS started by the Volume-Up gesture (double-press / 2-second hold)
   const [liveSos, setLiveSos] = useState({ open: false, source: '' });
@@ -57,7 +59,12 @@ function AppContent() {
           />
         );
       case 'tracker':
-        return <Tracker onOpenSymptomLogger={() => setShowSymptomLogger(true)} />;
+        return (
+          <Tracker
+            onOpenSymptomLogger={() => setShowSymptomLogger(true)}
+            onOpenPeriodRecord={() => setShowPeriodRecord(true)}
+          />
+        );
       case 'diet':
         return <DietPlan />;
       case 'weight':
@@ -132,6 +139,13 @@ function AppContent() {
           isOpen={showSymptomLogger}
           onClose={() => setShowSymptomLogger(false)}
         />
+
+        {showPeriodRecord && (
+          <PeriodRecordModal
+            isOpen={showPeriodRecord}
+            onClose={() => setShowPeriodRecord(false)}
+          />
+        )}
 
         <SOSModal
           isOpen={showSOSModal}

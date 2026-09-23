@@ -20,6 +20,12 @@ export function getDefaultState() {
   const cycle2Start = new Date(today);
   cycle2Start.setDate(today.getDate() - 40);
   const cycle3Start = new Date(lastPeriodDate);
+  // A period lasting 5 days runs from startDate to startDate + 4
+  const endDateOf = (start) => {
+    const end = new Date(start);
+    end.setDate(start.getDate() + 4);
+    return end.toISOString().split('T')[0];
+  };
 
   // Generate 30 days of weight data with natural luteal fluctuation (1-2kg shift)
   const weightHistory = [];
@@ -69,9 +75,9 @@ export function getDefaultState() {
       weightUnit: "kg"
     },
     cycleHistory: [
-      { id: "c1", startDate: cycle1Start.toISOString().split('T')[0], duration: 5, cycleLength: 28, flow: "medium" },
-      { id: "c2", startDate: cycle2Start.toISOString().split('T')[0], duration: 5, cycleLength: 28, flow: "medium" },
-      { id: "c3", startDate: cycle3Start.toISOString().split('T')[0], duration: 5, cycleLength: 28, flow: "heavy" }
+      { id: "c1", startDate: cycle1Start.toISOString().split('T')[0], endDate: endDateOf(cycle1Start), duration: 5, cycleLength: 28, flow: "medium", pain: 3, symptoms: [], notes: "" },
+      { id: "c2", startDate: cycle2Start.toISOString().split('T')[0], endDate: endDateOf(cycle2Start), duration: 5, cycleLength: 28, flow: "medium", pain: 4, symptoms: ["cramps"], notes: "" },
+      { id: "c3", startDate: cycle3Start.toISOString().split('T')[0], endDate: endDateOf(cycle3Start), duration: 5, cycleLength: 28, flow: "heavy", pain: 6, symptoms: ["cramps", "fatigue"], notes: "Heavier than usual on day 2." }
     ],
     symptomLogs: sampleLogs,
     weightHistory: weightHistory,

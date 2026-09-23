@@ -94,9 +94,10 @@ export function calculateCycleStatus(lastPeriodDateStr, cycleLength = 28, period
 }
 
 /**
- * Generate calendar month days with cycle flags
+ * Generate calendar month days with cycle flags.
+ * `cycleHistory` entries (startDate → endDate) are shown as recorded period days.
  */
-export function getMonthCalendarData(year, month, lastPeriodDateStr, cycleLength = 28, periodDuration = 5, logs = {}) {
+export function getMonthCalendarData(year, month, lastPeriodDateStr, cycleLength = 28, periodDuration = 5, logs = {}, cycleHistory = []) {
   const firstDayOfMonth = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday
@@ -120,7 +121,12 @@ export function getMonthCalendarData(year, month, lastPeriodDateStr, cycleLength
     const diff = daysBetween(lastPeriod, current);
     const cycleDay = ((diff % cycleLength) + cycleLength) % cycleLength + 1;
 
-    const isPeriodDay = cycleDay <= periodDuration;
+    // Manually recorded period range (from → to) takes priority over prediction
+    const isRecordedPeriodDay = cycleHistory.some(
+      (c) => c && c.startDate && dateKey >= c.startDate && dateKey <= (c.endDate || c.startDate)
+    );
+
+    const isPeriodDay = isRecordedPeriodDay || cycleDay <= periodDuration;
     const isOvulationDay = cycleDay === ovulationOffset;
     const isFertileDay = cycleDay >= (ovulationOffset - 5) && cycleDay <= (ovulationOffset + 1);
     
@@ -136,6 +142,7 @@ export function getMonthCalendarData(year, month, lastPeriodDateStr, cycleLength
       dateKey,
       cycleDay,
       isPeriodDay,
+      isRecordedPeriodDay,
       isOvulationDay,
       isFertileDay,
       hasLog: !!dayLog,

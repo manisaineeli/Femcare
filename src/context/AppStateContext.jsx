@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { loadState, saveState, clearAllLocalData, getDefaultState } from '../utils/storage';
-import { calculateCycleStatus } from '../utils/cycleCalculator';
+import { calculateCycleStatus, daysBetween } from '../utils/cycleCalculator';
 import { translations } from '../data/translations';
 
 const AppStateContext = createContext(null);
@@ -74,6 +74,63 @@ export function AppStateProvider({ children }) {
       ...prev,
       userProfile: { ...prev.userProfile, ...updates }
     }));
+  };
+
+  /**
+   * Manually record a period: from startDate to endDate, with period details.
+   * Adds/updates the entry in cycleHistory and refreshes the profile
+   * (lastPeriodStartDate, periodDuration) when it is the most recent period.
+   * Pass { replaceHistory: true } during onboarding to clear seeded demo cycles.
+   */
+  const addPeriodRecord = (record, { replaceHistory = false } = {}) => {
+    const startDate = record.startDate;
+    const endDate = record.endDate || record.startDate;
+    const duration = daysBetween(startDate, endDate) + 1;
+
+    setState((prev) => {
+      const baseHistory = replaceHistory ? [] : prev.cycleHistory;
+      // Re-recording the same start date replaces the old entry (no duplicates)
+      const history = baseHistory.filter((c) => c.startDate !== startDate);
+
+      // Actual cycle length = days since the closest earlier recorded period
+      const earlier = history
+        .filter((c) => c.startDate < startDate)
+        .sort((a, b) => (a.startDate < b.startDate ? 1 : -1));
+      let cycleLength = prev.userProfile.cycleLength || 28;
+      if (earlier.length > 0) {
+        const gap = daysBetween(earlier[0].startDate, startDate);
+        if (gap >= 15 && gap <= 60) cycleLength = gap;
+      }
+
+      const entry = {
+        id: `p-${Date.now()}`,
+        startDate,
+        endDate,
+        duration,
+        cycleLength,
+        flow: record.flow || "medium",
+        pain: typeof record.pain === "number" ? record.pain : 0,
+        symptoms: record.symptoms || [],
+        notes: record.notes || "",
+        createdAt: new Date().toISOString()
+      };
+
+      const updatedHistory = [...history, entry].sort((a, b) =>
+        a.startDate < b.startDate ? 1 : -1
+      );
+
+      // If this is the latest period, refresh the cycle predictions from it
+      const isLatest = updatedHistory.length === 0 || updatedHistory[0].id === entry.id;
+      const profileUpdates = isLatest
+        ? { lastPeriodStartDate: startDate, periodDuration: duration }
+        : {};
+
+      return {
+        ...prev,
+        cycleHistory: updatedHistory,
+        userProfile: { ...prev.userProfile, ...profileUpdates }
+      };
+    });
   };
 
   const logTodaySymptoms = (dateKey, logData) => {
@@ -193,6 +250,7 @@ export function AppStateProvider({ children }) {
     toggleDarkMode,
     togglePartnerMode,
     updateUserProfile,
+    addPeriodRecord,
     logTodaySymptoms,
     logWeight,
     addHydrationGlass,

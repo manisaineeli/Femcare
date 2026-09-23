@@ -6,7 +6,7 @@ import {
   Droplet, Activity, Info, CheckCircle2, History 
 } from 'lucide-react';
 
-export default function Tracker({ onOpenSymptomLogger }) {
+export default function Tracker({ onOpenSymptomLogger, onOpenPeriodRecord }) {
   const { state, cycleStatus, t, logTodaySymptoms } = useAppState();
   
   const today = new Date();
@@ -43,7 +43,8 @@ export default function Tracker({ onOpenSymptomLogger }) {
     state.userProfile.lastPeriodStartDate,
     state.userProfile.cycleLength,
     state.userProfile.periodDuration,
-    state.symptomLogs
+    state.symptomLogs,
+    state.cycleHistory
   );
 
   const selectedKey = formatDateKey(selectedDate);
@@ -52,8 +53,8 @@ export default function Tracker({ onOpenSymptomLogger }) {
   return (
     <div className="space-y-4 pb-24 animate-in fade-in duration-300">
       {/* Page Title */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
           <h2 className="text-xl font-bold text-white font-['Outfit']">
             {t('tracker.title')}
           </h2>
@@ -61,13 +62,22 @@ export default function Tracker({ onOpenSymptomLogger }) {
             {t('tracker.calendarSubtitle')}
           </p>
         </div>
-        <button
-          onClick={onOpenSymptomLogger}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#b5497a] to-[#d65d95] text-white text-xs font-semibold shadow-md shadow-[#b5497a]/30 active:scale-95 transition-all"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Log Symptoms</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={onOpenPeriodRecord}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1f1627] border border-[#b5497a]/50 text-[#f4a6b9] text-xs font-semibold hover:bg-[#b5497a]/15 active:scale-95 transition-all"
+          >
+            <Droplet className="w-3.5 h-3.5" />
+            <span>Log Period</span>
+          </button>
+          <button
+            onClick={onOpenSymptomLogger}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#b5497a] to-[#d65d95] text-white text-xs font-semibold shadow-md shadow-[#b5497a]/30 active:scale-95 transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Log Symptoms</span>
+          </button>
+        </div>
       </div>
 
       {/* Cycle Month Calendar */}
@@ -119,6 +129,8 @@ export default function Tracker({ onOpenSymptomLogger }) {
                 className={`relative h-10 rounded-xl flex flex-col items-center justify-center text-xs transition-all ${
                   isSelected
                     ? 'ring-2 ring-[#f4a6b9] bg-[#b5497a]/30 font-bold text-white'
+                    : day.isRecordedPeriodDay
+                    ? 'bg-rose-800/60 text-rose-100 hover:bg-rose-800/80 font-semibold'
                     : day.isPeriodDay
                     ? 'bg-rose-900/30 text-rose-200 hover:bg-rose-900/50'
                     : day.isOvulationDay
@@ -135,7 +147,12 @@ export default function Tracker({ onOpenSymptomLogger }) {
                 {/* Status Dot Indicators */}
                 <div className="flex items-center gap-0.5 mt-1">
                   {day.isPeriodDay && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" title="Period Flow" />
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        day.isRecordedPeriodDay ? 'bg-rose-400' : 'bg-rose-500'
+                      }`}
+                      title={day.isRecordedPeriodDay ? 'Recorded Period Day' : 'Period Flow'}
+                    />
                   )}
                   {day.isOvulationDay && (
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" title="Ovulation Day" />
@@ -156,7 +173,11 @@ export default function Tracker({ onOpenSymptomLogger }) {
         <div className="mt-4 pt-3 border-t border-[#31253e] flex flex-wrap items-center justify-between gap-2 text-[10px] text-zinc-400">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-500" />
-            <span>Period Flow</span>
+            <span>Predicted Period</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-sm bg-rose-800" />
+            <span>Recorded Period</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-purple-400" />
@@ -262,31 +283,70 @@ export default function Tracker({ onOpenSymptomLogger }) {
               {t('tracker.cycleHistory')}
             </h4>
           </div>
-          <span className="text-[11px] text-emerald-400 font-semibold">Regular (28-day baseline)</span>
+          <button
+            onClick={onOpenPeriodRecord}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#b5497a]/20 border border-[#b5497a]/50 text-[#f4a6b9] text-[11px] font-semibold hover:bg-[#b5497a]/30 active:scale-95 transition-all"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Add Record</span>
+          </button>
         </div>
 
-        <div className="space-y-2">
-          {state.cycleHistory.map((cycle, i) => (
-            <div
-              key={cycle.id}
-              className="p-2.5 rounded-xl bg-[#251d30] border border-[#372646] flex items-center justify-between text-xs"
+        {state.cycleHistory.length === 0 ? (
+          <div className="text-center py-4">
+            <Droplet className="w-6 h-6 text-zinc-600 mx-auto" />
+            <p className="text-xs text-zinc-400 mt-2">No period records yet.</p>
+            <button
+              onClick={onOpenPeriodRecord}
+              className="mt-2 text-[11px] font-semibold text-[#f4a6b9] hover:underline"
             >
-              <div>
-                <div className="font-semibold text-white">
-                  Period #{state.cycleHistory.length - i}: {cycle.startDate}
+              + Record your first period (from → to)
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {state.cycleHistory.map((cycle, i) => (
+              <div
+                key={cycle.id}
+                className="p-2.5 rounded-xl bg-[#251d30] border border-[#372646] flex items-start justify-between gap-2 text-xs"
+              >
+                <div className="min-w-0">
+                  <div className="font-semibold text-white flex items-center gap-1.5">
+                    <Droplet className="w-3 h-3 text-rose-400 shrink-0" />
+                    <span>
+                      Period #{state.cycleHistory.length - i}: {cycle.startDate}
+                      {cycle.endDate && cycle.endDate !== cycle.startDate && (
+                        <span className="text-zinc-300"> → {cycle.endDate}</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">
+                    Duration: {cycle.duration} days • Flow: {cycle.flow}
+                    {typeof cycle.pain === 'number' && cycle.pain > 0 && ` • Pain: ${cycle.pain}/10`}
+                  </div>
+                  {cycle.symptoms && cycle.symptoms.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {cycle.symptoms.map((s) => (
+                        <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-[#2d1e39] text-[#f4a6b9] border border-[#3f2a4f]">
+                          #{s}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {cycle.notes && (
+                    <p className="text-[10px] text-zinc-400 italic mt-1">"{cycle.notes}"</p>
+                  )}
                 </div>
-                <div className="text-[10px] text-zinc-400 mt-0.5">
-                  Duration: {cycle.duration} days • Flow: {cycle.flow}
+                <div className="text-right shrink-0">
+                  <span className="px-2 py-0.5 rounded-md bg-[#31253e] text-[10px] text-pink-300 font-medium">
+                    {cycle.cycleLength} Days
+                  </span>
+                  <span className="block text-[9px] text-zinc-500 mt-1">cycle length</span>
                 </div>
               </div>
-              <div className="text-right">
-                <span className="px-2 py-0.5 rounded-md bg-[#31253e] text-[10px] text-pink-300 font-medium">
-                  {cycle.cycleLength} Days
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
