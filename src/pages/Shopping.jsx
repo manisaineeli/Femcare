@@ -1,24 +1,80 @@
 import React, { useState } from 'react';
 import { useAppState } from '../context/AppStateContext';
-import { SHOPPING_PRODUCTS, PERIOD_POVERTY_CENTERS } from '../data/shoppingData';
-import { 
-  ShoppingBag, Eye, EyeOff, ShieldCheck, Sparkles, Leaf, MapPin, 
-  PhoneCall, Check, ExternalLink, Calculator, Tag 
+import {
+  SHOPPING_PRODUCTS, PERIOD_POVERTY_CENTERS, PERIOD_MEDICINES,
+  AWARENESS_CONDITIONS, MENSTRUAL_MYTHS, RED_FLAGS
+} from '../data/shoppingData';
+import {
+  ShoppingBag, Pill, Brain, Calculator, MapPin, Eye, EyeOff, Leaf,
+  PhoneCall, ChevronDown, AlertTriangle, Stethoscope, Lightbulb,
+  HeartPulse, Megaphone, ShieldAlert
 } from 'lucide-react';
+
+const CATEGORY_LABELS = {
+  all: 'All Items',
+  pads: 'Pads & Liners',
+  cups: 'Menstrual Cups',
+  tampons: 'Tampons',
+  underwear: 'Period Panties',
+  wellness: 'Pain Relief',
+  hygiene: 'Hygiene & Travel'
+};
+const CATEGORY_ORDER = ['all', 'pads', 'cups', 'tampons', 'underwear', 'wellness', 'hygiene'];
+
+const SUB_TABS = [
+  { id: 'products', label: 'Catalog', icon: ShoppingBag },
+  { id: 'medicines', label: 'Medicines', icon: Pill },
+  { id: 'awareness', label: 'Awareness', icon: Brain },
+  { id: 'calculator', label: 'Savings', icon: Calculator },
+  { id: 'locator', label: 'Free Centers', icon: MapPin }
+];
+
+const ACCESS_STYLE = {
+  'Over the counter': 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
+  'Ask a pharmacist': 'bg-amber-500/15 text-amber-300 border-amber-500/40',
+  'Prescription': 'bg-rose-500/15 text-rose-300 border-rose-500/40'
+};
+
+const hideBrokenImg = (e) => { e.currentTarget.style.display = 'none'; };
+
+function InfoSection({ title, icon: Icon, color, items }) {
+  return (
+    <div>
+      <h5 className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 mb-1.5 ${color}`}>
+        <Icon className="w-3.5 h-3.5" />
+        {title}
+      </h5>
+      <ul className="space-y-1.5">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-start gap-2 text-[11px] text-zinc-300 leading-relaxed">
+            <span className="w-1 h-1 rounded-full bg-zinc-500 mt-1.5 shrink-0" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function Shopping() {
   const { state, t } = useAppState();
   const [privacyBlur, setPrivacyBlur] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeTab, setActiveTab] = useState("products"); // "products", "locator", "calculator"
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState('products'); // products | medicines | awareness | calculator | locator
+  const [openCondition, setOpenCondition] = useState('pcos');
 
   // Estimator State
   const [estDays, setEstDays] = useState(state.userProfile.periodDuration || 5);
   const [estPadsPerDay, setEstPadsPerDay] = useState(4);
 
-  const filteredProducts = selectedCategory === "all"
+  // Product type chips — built from what actually exists in the catalog
+  const categories = CATEGORY_ORDER
+    .filter((id) => id === 'all' || SHOPPING_PRODUCTS.some((p) => p.category === id))
+    .map((id) => ({ id, label: CATEGORY_LABELS[id] }));
+
+  const filteredProducts = selectedCategory === 'all'
     ? SHOPPING_PRODUCTS
-    : SHOPPING_PRODUCTS.filter(p => p.category === selectedCategory);
+    : SHOPPING_PRODUCTS.filter((p) => p.category === selectedCategory);
 
   // Estimator Calculations
   const padsPerCycle = estDays * estPadsPerDay;
@@ -50,43 +106,38 @@ export default function Shopping() {
           }`}
         >
           {privacyBlur ? <EyeOff className="w-3.5 h-3.5 text-purple-400" /> : <Eye className="w-3.5 h-3.5" />}
-          <span>{privacyBlur ? "Privacy ON" : "Privacy OFF"}</span>
+          <span>{privacyBlur ? 'Privacy ON' : 'Privacy OFF'}</span>
         </button>
       </div>
 
       {/* Sub Tabs */}
-      <div className="flex bg-[#1e1727] p-1 rounded-xl border border-[#31253e]">
-        {[
-          { id: "products", label: "Catalog" },
-          { id: "calculator", label: "Savings Calc" },
-          { id: "locator", label: "Free Pad Centers" }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-              activeTab === tab.id
-                ? 'bg-gradient-to-r from-[#b5497a] to-[#d65d95] text-white shadow-sm'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-1.5">
+        {SUB_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                isActive
+                  ? 'bg-gradient-to-r from-[#b5497a] to-[#d65d95] text-white border-transparent shadow-md shadow-[#b5497a]/30'
+                  : 'bg-[#1e1727] border-[#31253e] text-zinc-400 hover:text-white hover:border-[#b5497a]/40'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Products Catalog View */}
-      {activeTab === "products" && (
+      {/* ── Products Catalog ── */}
+      {activeTab === 'products' && (
         <div className="space-y-3">
-          {/* Category Filter Chips */}
+          {/* Product Type Filter Chips */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {[
-              { id: "all", label: "All Items" },
-              { id: "pads", label: "Pads & Liners" },
-              { id: "cups", label: "Menstrual Cups" },
-              { id: "underwear", label: "Period Panties" },
-              { id: "wellness", label: "Pain Relief Patches" }
-            ].map((cat) => (
+            {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
@@ -106,61 +157,261 @@ export default function Shopping() {
             {filteredProducts.map((prod) => (
               <div
                 key={prod.id}
-                className="rounded-2xl p-4 bg-[#1e1727] border border-[#31253e] shadow-md space-y-2 relative overflow-hidden"
+                className="group rounded-2xl bg-[#1e1727] border border-[#31253e] shadow-md overflow-hidden"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#31253e] text-[#f4a6b9]">
-                      {prod.badge}
-                    </span>
-                    <h4 className="text-sm font-bold text-white mt-1 font-['Outfit']">
-                      {prod.name}
-                    </h4>
-                    <span className="text-[11px] text-zinc-400">
-                      Brand: {prod.brand} • {prod.unit}
-                    </span>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-base font-extrabold text-emerald-400 font-['Outfit']">
-                      ₹{prod.price}
-                    </div>
-                    {prod.regularMarketPrice > prod.price && (
-                      <span className="text-[10px] text-zinc-400 line-through">
-                        ₹{prod.regularMarketPrice}
-                      </span>
-                    )}
-                  </div>
+                {/* Product Image */}
+                <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[#b5497a]/50 to-[#4b3560]">
+                  <img
+                    src={prod.image}
+                    alt={prod.name}
+                    loading="lazy"
+                    onError={hideBrokenImg}
+                    className={`w-full h-full object-cover transition-all duration-300 ${
+                      privacyBlur ? 'blur-md scale-110 group-hover:blur-0 group-hover:scale-100' : ''
+                    }`}
+                  />
+                  <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-[#f4a6b9] border border-[#b5497a]/50">
+                    {prod.badge}
+                  </span>
+                  <span className="absolute bottom-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-black/60 text-zinc-200 border border-white/10">
+                    {prod.type}
+                  </span>
                 </div>
 
-                {/* Privacy Blurred Product Content if enabled */}
-                <div className={`transition-all duration-200 ${
-                  privacyBlur ? 'filter blur-sm select-none hover:filter-none' : ''
-                }`}>
-                  <p className="text-xs text-zinc-300 leading-relaxed">
+                {/* Content */}
+                <div className="p-3.5 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-bold text-white font-['Outfit'] leading-snug">
+                        {prod.name}
+                      </h4>
+                      <span className="text-[11px] text-zinc-400">
+                        {prod.brand} • {prod.unit}
+                      </span>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-base font-extrabold text-emerald-400 font-['Outfit']">
+                        ₹{prod.price}
+                      </div>
+                      {prod.regularMarketPrice > prod.price && (
+                        <span className="text-[10px] text-zinc-400 line-through">
+                          ₹{prod.regularMarketPrice}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className={`text-xs text-zinc-300 leading-relaxed transition-all duration-200 ${
+                    privacyBlur ? 'blur-[5px] select-none group-hover:blur-0' : ''
+                  }`}>
                     {prod.description}
                   </p>
-                  <div className="mt-2 flex items-center gap-2 text-[11px] text-zinc-400">
+
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-400">
                     <span className="text-emerald-400 flex items-center gap-1">
                       <Leaf className="w-3 h-3" /> {prod.biodegradable}
                     </span>
                     <span>• Packaging: {prod.discreetPack}</span>
                   </div>
-                </div>
 
-                {privacyBlur && (
-                  <p className="text-[9px] text-purple-300 italic pt-1">
-                    * Hover or tap to unblur details (Privacy Shield Active)
-                  </p>
-                )}
+                  {privacyBlur && (
+                    <p className="text-[9px] text-purple-300 italic pt-0.5">
+                      * Hover or tap to unblur details (Privacy Shield Active)
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
+      {/* ── Medicines & Cramp Care ── */}
+      {activeTab === 'medicines' && (
+        <div className="space-y-3">
+          {/* Disclaimer */}
+          <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-[11px] text-amber-100/90 leading-relaxed">
+            <div className="flex items-center gap-1.5 text-amber-300 font-bold text-xs uppercase tracking-wider mb-1">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Read First — Awareness, Not a Prescription
+            </div>
+            These notes are for education only. Medicines can have side effects and interactions that depend on <em>your</em> history — always consult a doctor or licensed pharmacist before starting anything, and never exceed the label dose. Doses below are common adult ranges and may not suit you.
+          </div>
+
+          {PERIOD_MEDICINES.map((med) => (
+            <div key={med.id} className="rounded-2xl bg-[#1e1727] border border-[#31253e] shadow-md overflow-hidden">
+              {/* Medicine Image */}
+              <div className="relative h-32 overflow-hidden bg-gradient-to-br from-rose-900/60 to-[#2a1220]">
+                <img
+                  src={med.image}
+                  alt={med.name}
+                  loading="lazy"
+                  onError={hideBrokenImg}
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-[#f4a6b9] border border-[#b5497a]/50">
+                  {med.category}
+                </span>
+                <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-black/70 ${
+                  ACCESS_STYLE[med.access] || 'bg-black/60 text-zinc-200 border-white/20'
+                }`}>
+                  {med.access}
+                </span>
+              </div>
+
+              <div className="p-3.5 space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-white font-['Outfit']">{med.name}</h4>
+                    <span className="text-[11px] text-zinc-400">{med.example} • {med.unit}</span>
+                  </div>
+                  <span className="text-sm font-extrabold text-emerald-400 shrink-0">₹{med.price}</span>
+                </div>
+
+                {/* Used for */}
+                <div className="flex flex-wrap gap-1.5">
+                  {med.usedFor.map((u) => (
+                    <span key={u} className="text-[10px] px-2 py-0.5 rounded-md bg-[#2d1e39] text-[#f4a6b9] border border-[#3f2a4f]">
+                      {u}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  <strong className="text-white">How it helps:</strong> {med.how}
+                </p>
+
+                <div className="p-2.5 rounded-xl bg-[#251d30] border border-[#372646] text-[11px] text-pink-200/90 leading-relaxed flex items-start gap-1.5">
+                  <Pill className="w-3.5 h-3.5 text-[#f4a6b9] shrink-0 mt-0.5" />
+                  <span><strong className="text-white">Usual dose note:</strong> {med.dose}</span>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-[11px] text-rose-200/90 leading-relaxed flex items-start gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-rose-400 shrink-0 mt-0.5" />
+                  <span><strong>Safety:</strong> {med.safety}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <p className="text-[11px] text-zinc-500 text-center px-2">
+            Emergency? Call <strong className="text-zinc-300">112</strong> • Mental health support: Tele-MANAS <strong className="text-zinc-300">14416</strong>
+          </p>
+        </div>
+      )}
+
+      {/* ── Health Awareness ── */}
+      {activeTab === 'awareness' && (
+        <div className="space-y-3">
+          {/* Intro Banner */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/70 to-[#271536] border border-purple-500/30 text-xs text-zinc-300 leading-relaxed">
+            <div className="flex items-center gap-1.5 text-purple-300 font-bold text-xs uppercase tracking-wider mb-1">
+              <Megaphone className="w-3.5 h-3.5" />
+              Know Your Body — awareness prevents late diagnoses
+            </div>
+            Common period conditions explained: how they are <em>caused</em>, what you will feel, and exactly when to see a doctor. Educational info only — not a diagnosis.
+          </div>
+
+          {/* Condition Accordions */}
+          {AWARENESS_CONDITIONS.map((cond) => {
+            const isOpen = openCondition === cond.id;
+            return (
+              <div key={cond.id} className="rounded-2xl bg-[#1e1727] border border-[#31253e] overflow-hidden">
+                <button
+                  onClick={() => setOpenCondition(isOpen ? null : cond.id)}
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-[#251d30] transition-colors"
+                >
+                  <img
+                    src={cond.image}
+                    alt=""
+                    loading="lazy"
+                    onError={hideBrokenImg}
+                    className="w-14 h-14 rounded-xl object-cover shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-bold text-white font-['Outfit']">{cond.title}</div>
+                    <div className="text-[11px] text-zinc-400 truncate">{cond.aka}</div>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-[#f4a6b9]' : 'text-zinc-500'}`} />
+                </button>
+
+                {isOpen && (
+                  <div className="px-3.5 pb-3.5 space-y-3.5 animate-in fade-in duration-200">
+                    <img
+                      src={cond.image}
+                      alt={cond.title}
+                      loading="lazy"
+                      onError={hideBrokenImg}
+                      className="w-full h-32 object-cover rounded-xl border border-[#372646]"
+                    />
+
+                    <p className="text-[11px] text-purple-200 bg-purple-950/40 border border-purple-500/30 rounded-xl px-2.5 py-2 leading-relaxed">
+                      📊 {cond.stat}
+                    </p>
+
+                    <div>
+                      <h5 className="text-[11px] font-bold uppercase tracking-wider text-[#f4a6b9] flex items-center gap-1.5 mb-1.5">
+                        <Stethoscope className="w-3.5 h-3.5" />
+                        What it is
+                      </h5>
+                      <p className="text-[11px] text-zinc-300 leading-relaxed">{cond.what}</p>
+                    </div>
+
+                    <InfoSection title="How it is caused" icon={Lightbulb} color="text-amber-300" items={cond.causes} />
+                    <InfoSection title="Signs you may notice" icon={HeartPulse} color="text-rose-300" items={cond.symptoms} />
+                    <InfoSection title="What helps" icon={Stethoscope} color="text-emerald-300" items={cond.manage} />
+                    <InfoSection title="See a doctor if…" icon={AlertTriangle} color="text-orange-300" items={cond.doctorIf} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Myths vs Facts */}
+          <div className="rounded-2xl p-4 bg-[#1e1727] border border-[#31253e]">
+            <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider font-['Outfit'] mb-3">
+              <Lightbulb className="w-4 h-4 text-amber-300" />
+              <span>Myth vs Fact</span>
+            </div>
+            <div className="space-y-2">
+              {MENSTRUAL_MYTHS.map((m, i) => (
+                <div key={i} className="p-2.5 rounded-xl bg-[#251d30] border border-[#372646] space-y-1.5">
+                  <p className="text-[11px] text-rose-300 leading-relaxed">
+                    <span className="font-bold uppercase text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 border border-rose-500/40 mr-1.5 align-middle">✗ Myth</span>
+                    {m.myth}
+                  </p>
+                  <p className="text-[11px] text-emerald-200 leading-relaxed">
+                    <span className="font-bold uppercase text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 mr-1.5 align-middle">✓ Fact</span>
+                    {m.fact}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Red Flags */}
+          <div className="rounded-2xl p-4 bg-rose-950/40 border border-rose-500/40">
+            <div className="flex items-center gap-2 text-rose-300 font-bold text-xs uppercase tracking-wider font-['Outfit'] mb-2.5">
+              <ShieldAlert className="w-4 h-4" />
+              <span>See a Doctor Immediately If…</span>
+            </div>
+            <ul className="space-y-1.5">
+              {RED_FLAGS.map((flag, i) => (
+                <li key={i} className="flex items-start gap-2 text-[11px] text-rose-100/90 leading-relaxed">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-400 mt-1.5 shrink-0" />
+                  <span>{flag}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 pt-2.5 border-t border-rose-500/30 text-[11px] text-rose-200/80">
+              Emergency: <strong>112</strong> • Mental health: Tele-MANAS <strong>14416</strong> • Health info: <strong>104</strong>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Savings & Replenishment Calculator */}
-      {activeTab === "calculator" && (
+      {activeTab === 'calculator' && (
         <div className="rounded-2xl p-4 bg-[#1e1727] border border-[#31253e] shadow-md space-y-4">
           <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider font-['Outfit']">
             <Calculator className="w-4 h-4 text-[#f4a6b9]" />
@@ -219,7 +470,7 @@ export default function Shopping() {
       )}
 
       {/* WOW 3: Period Poverty Support Locator */}
-      {activeTab === "locator" && (
+      {activeTab === 'locator' && (
         <div className="space-y-3">
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/60 to-[#271536] border border-purple-500/30 text-xs text-zinc-300 leading-relaxed">
             <div className="flex items-center gap-1.5 text-purple-300 font-bold text-xs uppercase tracking-wider mb-1">
